@@ -1,72 +1,63 @@
 import { useState } from "react";
-import { Supplier } from "@/types/supplier";
-import { mockSuppliers } from "@/data/mockSuppliers";
 import { TopRanking } from "@/components/dashboard/TopRanking";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { SupplierTable } from "@/components/dashboard/SupplierTable";
-import { toast } from "sonner";
+import { useSuppliers } from "@/hooks/useSuppliers";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useRatings } from "@/hooks/useRatings";
 
 export default function Dashboard() {
-  const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
+  const { suppliers, isLoading } = useSuppliers();
+  const { toggleFavorite } = useFavorites();
+  const { rateSupplier } = useRatings();
   const [searchQuery, setSearchQuery] = useState("");
-
-  const handleToggleFavorite = (id: string) => {
-    setSuppliers((prev) =>
-      prev.map((supplier) =>
-        supplier.id === id
-          ? { ...supplier, isFavorite: !supplier.isFavorite }
-          : supplier
-      )
-    );
-    
-    const supplier = suppliers.find((s) => s.id === id);
-    if (supplier) {
-      toast.success(
-        supplier.isFavorite
-          ? `${supplier.name} removido dos favoritos`
-          : `${supplier.name} adicionado aos favoritos! 💜`
-      );
-    }
-  };
-
-  const handleRate = (id: string, rating: number) => {
-    setSuppliers((prev) =>
-      prev.map((supplier) =>
-        supplier.id === id
-          ? {
-              ...supplier,
-              rating: (supplier.rating * supplier.ratingCount + rating) / (supplier.ratingCount + 1),
-              ratingCount: supplier.ratingCount + 1,
-            }
-          : supplier
-      )
-    );
-    
-    toast.success(`Avaliação de ${rating} estrelas registrada! ⭐`);
-  };
+  const [regionFilter, setRegionFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
   const filteredSuppliers = suppliers.filter((supplier) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = 
       supplier.name.toLowerCase().includes(query) ||
       supplier.instagram.toLowerCase().includes(query) ||
-      supplier.region.toLowerCase().includes(query)
-    );
+      supplier.region.toLowerCase().includes(query);
+    
+    const matchesRegion = !regionFilter || supplier.region === regionFilter;
+    const matchesType = !typeFilter || supplier.type === typeFilter;
+    
+    return matchesSearch && matchesRegion && matchesType;
+  }).sort((a, b) => {
+    if (sortBy === "rating") return b.rating - a.rating;
+    if (sortBy === "name") return a.name.localeCompare(b.name);
+    return 0;
   });
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
-      {/* Top Ranking */}
       <TopRanking suppliers={suppliers} />
-
-      {/* Filter Bar */}
-      <FilterBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-
-      {/* Supplier Table */}
+      <FilterBar 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery}
+        regionFilter={regionFilter}
+        onRegionChange={setRegionFilter}
+        typeFilter={typeFilter}
+        onTypeChange={setTypeFilter}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+      />
       <SupplierTable
         suppliers={filteredSuppliers}
-        onToggleFavorite={handleToggleFavorite}
-        onRate={handleRate}
+        onToggleFavorite={(id) => {
+          const supplier = suppliers.find(s => s.id === id);
+          if (supplier) {
+            toggleFavorite({ supplierId: id, isFavorite: supplier.isFavorite, supplierName: supplier.name });
+          }
+        }}
+        onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
       />
     </div>
   );

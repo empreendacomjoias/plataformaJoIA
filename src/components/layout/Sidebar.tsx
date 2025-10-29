@@ -1,6 +1,10 @@
-import { List, Heart, Trophy, Plus, Settings } from "lucide-react";
+import { List, Heart, Trophy, Plus, Settings, LogOut, Shield } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const menuItems = [
   { icon: List, label: "Lista de Fornecedores", path: "/" },
@@ -11,6 +15,8 @@ const menuItems = [
 ];
 
 export function Sidebar() {
+  const { isAdmin, signOut, user } = useAuth();
+  
   return (
     <aside className="w-64 h-screen bg-card border-r border-border flex flex-col">
       {/* Logo */}
@@ -28,7 +34,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => (
+        {menuItems.filter(item => item.path !== "/adicionar" || isAdmin).map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -56,9 +62,22 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border space-y-3">
+        {isAdmin && (
+          <Badge className="w-full justify-center" variant="secondary">
+            <Shield className="w-3 h-3 mr-1" />
+            Admin
+          </Badge>
+        )}
+        <div className="flex items-center justify-between gap-2">
+          <ThemeToggle />
+          <Button variant="ghost" size="sm" onClick={signOut} className="flex-1">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sair
+          </Button>
+        </div>
         <div className="text-xs text-muted-foreground text-center">
-          v1.0.0 - Premium Edition
+          {user?.email}
         </div>
       </div>
     </aside>

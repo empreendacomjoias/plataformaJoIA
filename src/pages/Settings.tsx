@@ -1,5 +1,8 @@
 import { Settings as SettingsIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ProfileSection } from "@/components/settings/ProfileSection";
+import { PreferencesSection } from "@/components/settings/PreferencesSection";
 
 export default function Settings() {
   return (
@@ -16,10 +19,10 @@ export default function Settings() {
         </div>
       </div>
 
-      <Card className="p-6 border-border/50 shadow-lg">
-        <p className="text-muted-foreground text-center py-12">
-          Em breve: configurações de perfil, notificações e preferências
-        </p>
+      <Card className="p-6 border-border/50 shadow-lg space-y-6">
+        <ProfileSection />
+        <Separator />
+        <PreferencesSection />
       </Card>
     </div>
   );

@@ -55,6 +55,47 @@ All colors MUST be HSL.
     --glow-purple: 0 0 20px hsl(262 51% 50% / 0.5);
     --glow-accent: 0 0 30px hsl(258 90% 66% / 0.4);
   }
+
+  .light {
+    /* Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 264 45% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 264 45% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 264 45% 10%;
+
+    --primary: 262 51% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 262 30% 90%;
+    --secondary-foreground: 262 51% 20%;
+
+    --muted: 262 20% 96%;
+    --muted-foreground: 264 20% 40%;
+
+    --accent: 258 90% 66%;
+    --accent-foreground: 264 45% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 262 30% 85%;
+    --input: 262 30% 85%;
+    --ring: 262 51% 50%;
+
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 264 45% 10%;
+    --sidebar-primary: 262 51% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 30% 90%;
+    --sidebar-accent-foreground: 262 51% 20%;
+    --sidebar-border: 262 30% 85%;
+    --sidebar-ring: 258 90% 66%;
+  }
 }
 
 @layer base {
