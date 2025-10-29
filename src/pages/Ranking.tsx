@@ -1,17 +1,22 @@
-import { mockSuppliers } from "@/data/mockSuppliers";
-import { Trophy, TrendingUp, Star } from "lucide-react";
+import { Trophy, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useSuppliers } from "@/hooks/useSuppliers";
 
 export default function Ranking() {
-  const rankedSuppliers = [...mockSuppliers].sort((a, b) => b.rating - a.rating);
+  const { suppliers, isLoading } = useSuppliers();
 
+  const rankedSuppliers = [...suppliers].sort((a, b) => b.rating - a.rating);
   const medals = ["🏆", "🥈", "🥉"];
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <Trophy className="w-8 h-8 text-accent drop-shadow-[0_0_10px_rgba(167,139,250,0.6)]" />
+        <Trophy className="w-8 h-8 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Ranking Completo

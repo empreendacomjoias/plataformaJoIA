@@ -1,49 +1,24 @@
-import { useState } from "react";
-import { mockSuppliers } from "@/data/mockSuppliers";
+import { useSuppliers } from "@/hooks/useSuppliers";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useRatings } from "@/hooks/useRatings";
 import { SupplierTable } from "@/components/dashboard/SupplierTable";
 import { Heart } from "lucide-react";
-import { toast } from "sonner";
 
 export default function Favorites() {
-  const [suppliers, setSuppliers] = useState(mockSuppliers);
-
-  const handleToggleFavorite = (id: string) => {
-    setSuppliers((prev) =>
-      prev.map((supplier) =>
-        supplier.id === id
-          ? { ...supplier, isFavorite: !supplier.isFavorite }
-          : supplier
-      )
-    );
-    
-    const supplier = suppliers.find((s) => s.id === id);
-    if (supplier) {
-      toast.success(`${supplier.name} removido dos favoritos`);
-    }
-  };
-
-  const handleRate = (id: string, rating: number) => {
-    setSuppliers((prev) =>
-      prev.map((supplier) =>
-        supplier.id === id
-          ? {
-              ...supplier,
-              rating: (supplier.rating * supplier.ratingCount + rating) / (supplier.ratingCount + 1),
-              ratingCount: supplier.ratingCount + 1,
-            }
-          : supplier
-      )
-    );
-    
-    toast.success(`Avaliação de ${rating} estrelas registrada! ⭐`);
-  };
+  const { suppliers, isLoading } = useSuppliers();
+  const { toggleFavorite } = useFavorites();
+  const { rateSupplier } = useRatings();
 
   const favoriteSuppliers = suppliers.filter((s) => s.isFavorite);
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <Heart className="w-8 h-8 text-accent fill-accent drop-shadow-[0_0_10px_rgba(167,139,250,0.6)]" />
+        <Heart className="w-8 h-8 text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Meus Favoritos
@@ -65,8 +40,13 @@ export default function Favorites() {
       ) : (
         <SupplierTable
           suppliers={favoriteSuppliers}
-          onToggleFavorite={handleToggleFavorite}
-          onRate={handleRate}
+          onToggleFavorite={(id) => {
+            const supplier = suppliers.find(s => s.id === id);
+            if (supplier) {
+              toggleFavorite({ supplierId: id, isFavorite: supplier.isFavorite, supplierName: supplier.name });
+            }
+          }}
+          onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
         />
       )}
     </div>

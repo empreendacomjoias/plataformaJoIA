@@ -12,20 +12,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { SupplierCategory } from "@/types/supplier";
-
-const allCategories: SupplierCategory[] = [
-  "Personalizado",
-  "Masculino",
-  "Pedras Naturais",
-  "Pandora",
-  "Tiffany",
-  "Vivara",
-];
+import { useCategories } from "@/hooks/useCategories";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AddSupplier() {
-  const [selectedCategories, setSelectedCategories] = useState<SupplierCategory[]>([]);
+  const { categories, createCategory, isCreating } = useCategories();
+  const queryClient = useQueryClient();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -34,7 +33,7 @@ export default function AddSupplier() {
     instagram: "",
   });
 
-  const toggleCategory = (category: SupplierCategory) => {
+  const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
@@ -42,7 +41,21 @@ export default function AddSupplier() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCreateCategory = () => {
+    if (!newCategoryName.trim()) {
+      toast.error("Digite um nome para a categoria");
+      return;
+    }
+    
+    createCategory(newCategoryName, {
+      onSuccess: () => {
+        setNewCategoryName("");
+        setShowCategoryDialog(false);
+      },
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.type || !formData.region || !formData.minOrder || !formData.instagram) {
@@ -55,17 +68,63 @@ export default function AddSupplier() {
       return;
     }
 
-    toast.success(`✨ Fornecedor ${formData.name} adicionado com sucesso!`);
-    
-    // Reset form
-    setFormData({
-      name: "",
-      type: "",
-      region: "",
-      minOrder: "",
-      instagram: "",
-    });
-    setSelectedCategories([]);
+    setSubmitting(true);
+
+    try {
+      // Insert supplier
+      const { data: supplierData, error: supplierError } = await supabase
+        .from("suppliers")
+        .insert({
+          name: formData.name,
+          type: formData.type,
+          region: formData.region,
+          min_order: parseFloat(formData.minOrder),
+          instagram: formData.instagram,
+        })
+        .select()
+        .single();
+
+      if (supplierError) throw supplierError;
+
+      // Get category IDs
+      const { data: categoryData, error: categoryError } = await supabase
+        .from("categories")
+        .select("id, name")
+        .in("name", selectedCategories);
+
+      if (categoryError) throw categoryError;
+
+      // Insert supplier-category relations
+      const relations = categoryData.map((cat) => ({
+        supplier_id: supplierData.id,
+        category_id: cat.id,
+      }));
+
+      const { error: relationsError } = await supabase
+        .from("supplier_categories")
+        .insert(relations);
+
+      if (relationsError) throw relationsError;
+
+      toast.success(`✨ Fornecedor ${formData.name} adicionado com sucesso!`);
+      
+      // Invalidate suppliers query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+
+      // Reset form
+      setFormData({
+        name: "",
+        type: "",
+        region: "",
+        minOrder: "",
+        instagram: "",
+      });
+      setSelectedCategories([]);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao adicionar fornecedor");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -156,7 +215,7 @@ export default function AddSupplier() {
             <div>
               <Label>Categorias *</Label>
               <div className="flex flex-wrap gap-2 mt-2">
-                {allCategories.map((category) => (
+                {categories.map((category) => (
                   <Badge
                     key={category}
                     variant={selectedCategories.includes(category) ? "default" : "outline"}
@@ -166,12 +225,47 @@ export default function AddSupplier() {
                     {category}
                   </Badge>
                 ))}
+                <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+                  <DialogTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="cursor-pointer hover:scale-105 transition-transform border-dashed"
+                    >
+                      <Plus className="w-3 h-3 mr-1" />
+                      Nova Categoria
+                    </Badge>
+                  </DialogTrigger>
+                  <DialogContent className="bg-card border-border">
+                    <DialogHeader>
+                      <DialogTitle>Criar Nova Categoria</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div>
+                        <Label htmlFor="categoryName">Nome da Categoria</Label>
+                        <Input
+                          id="categoryName"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          placeholder="Ex: Folheados"
+                          maxLength={50}
+                        />
+                      </div>
+                      <Button 
+                        onClick={handleCreateCategory} 
+                        disabled={isCreating || !newCategoryName.trim()}
+                        className="w-full"
+                      >
+                        {isCreating ? "Criando..." : "Criar Categoria"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
+            <Button type="submit" className="w-full" size="lg" disabled={submitting}>
               <Plus className="w-4 h-4 mr-2" />
-              Salvar Fornecedor
+              {submitting ? "Salvando..." : "Salvar Fornecedor"}
             </Button>
           </form>
         </Card>

@@ -1,12 +1,6 @@
 export type SupplierType = "Fabricante" | "Atacadista";
 
-export type SupplierCategory = 
-  | "Personalizado"
-  | "Masculino"
-  | "Pedras Naturais"
-  | "Pandora"
-  | "Tiffany"
-  | "Vivara";
+export type SupplierCategory = string; // Dynamic categories from database
 
 export interface Supplier {
   id: string;
