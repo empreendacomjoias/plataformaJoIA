@@ -72,9 +72,71 @@ export function useSuppliers() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async (data: {
+      id: string;
+      name: string;
+      type: "Fabricante" | "Atacadista";
+      region: string;
+      minOrder: number;
+      instagram: string;
+      categories: string[];
+    }) => {
+      // Update supplier
+      const { error: supplierError } = await supabase
+        .from("suppliers")
+        .update({
+          name: data.name,
+          type: data.type,
+          region: data.region,
+          min_order: data.minOrder,
+          instagram: data.instagram,
+        })
+        .eq("id", data.id);
+
+      if (supplierError) throw supplierError;
+
+      // Delete existing category relations
+      const { error: deleteError } = await supabase
+        .from("supplier_categories")
+        .delete()
+        .eq("supplier_id", data.id);
+
+      if (deleteError) throw deleteError;
+
+      // Get category IDs
+      const { data: categoryData, error: categoryError } = await supabase
+        .from("categories")
+        .select("id, name")
+        .in("name", data.categories);
+
+      if (categoryError) throw categoryError;
+
+      // Insert new supplier-category relations
+      const relations = categoryData.map((cat) => ({
+        supplier_id: data.id,
+        category_id: cat.id,
+      }));
+
+      const { error: relationsError } = await supabase
+        .from("supplier_categories")
+        .insert(relations);
+
+      if (relationsError) throw relationsError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+      toast.success("Fornecedor atualizado com sucesso!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar fornecedor");
+    },
+  });
+
   return {
     suppliers,
     isLoading,
     deleteSupplier: deleteMutation.mutate,
+    updateSupplier: updateMutation.mutateAsync,
   };
 }

@@ -1,4 +1,4 @@
-import { Heart, Factory, ShoppingBag, ExternalLink, MoreVertical, Copy, Trash2 } from "lucide-react";
+import { Heart, Factory, ShoppingBag, ExternalLink, MoreVertical, Copy, Trash2, Pencil } from "lucide-react";
 import { useState } from "react";
 import { Supplier } from "@/types/supplier";
 import { StarRating } from "./StarRating";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { EditSupplierDialog } from "./EditSupplierDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +41,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate }: SupplierRowP
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const handleCopyInstagram = () => {
     const instagramUrl = `https://instagram.com/${supplier.instagram.replace("@", "")}`;
@@ -165,6 +167,13 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate }: SupplierRowP
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
+                  onClick={() => setShowEditDialog(true)}
+                  className="cursor-pointer"
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Editar Fornecedor
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={() => setShowDeleteDialog(true)}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
@@ -183,6 +192,12 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate }: SupplierRowP
       onOpenChange={setShowDeleteDialog}
       onConfirm={handleDelete}
       supplierName={supplier.name}
+    />
+
+    <EditSupplierDialog
+      supplier={supplier}
+      open={showEditDialog}
+      onOpenChange={setShowEditDialog}
     />
     </>
   );
