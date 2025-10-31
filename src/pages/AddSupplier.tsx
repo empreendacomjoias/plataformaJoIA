@@ -25,6 +25,7 @@ export default function AddSupplier() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -61,6 +62,35 @@ export default function AddSupplier() {
       // Remove from selected if present
       setSelectedCategories(prev => prev.filter(c => c !== categoryName));
     }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv'
+    ];
+    
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.csv') && !file.name.endsWith('.xlsx')) {
+      toast.error("Formato de arquivo inválido. Use .xlsx ou .csv");
+      return;
+    }
+
+    setUploading(true);
+    toast.info("Processando arquivo...");
+
+    // For now, show a message that this feature is coming soon
+    setTimeout(() => {
+      setUploading(false);
+      toast.info("Funcionalidade de importação será implementada em breve!");
+    }, 1000);
+
+    // Reset input
+    e.target.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -301,21 +331,33 @@ export default function AddSupplier() {
             Importar Planilha
           </h2>
 
-          <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border/50 rounded-lg hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
+          <input
+            type="file"
+            id="file-upload"
+            accept=".xlsx,.csv"
+            onChange={handleFileSelect}
+            className="hidden"
+            disabled={uploading}
+          />
+
+          <label
+            htmlFor="file-upload"
+            className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border/50 rounded-lg hover:border-primary/50 transition-colors cursor-pointer bg-background/30"
+          >
             <Upload className="w-12 h-12 text-muted-foreground mb-4" />
             <p className="text-center text-muted-foreground mb-2">
-              Arraste e solte sua planilha aqui
+              {uploading ? "Processando..." : "Arraste e solte sua planilha aqui"}
             </p>
             <p className="text-sm text-muted-foreground mb-4">
               ou clique para selecionar
             </p>
-            <Button variant="outline">
-              Selecionar Arquivo
+            <Button variant="outline" type="button" disabled={uploading}>
+              {uploading ? "Carregando..." : "Selecionar Arquivo"}
             </Button>
             <p className="text-xs text-muted-foreground mt-4">
               Formatos aceitos: .xlsx, .csv
             </p>
-          </div>
+          </label>
 
           <div className="mt-6 p-4 bg-accent/10 border border-accent/30 rounded-lg">
             <p className="text-sm font-medium mb-2">📋 Formato da planilha:</p>
