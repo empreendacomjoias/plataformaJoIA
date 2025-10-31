@@ -11,9 +11,9 @@ export default function Dashboard() {
   const { toggleFavorite } = useFavorites();
   const { rateSupplier } = useRatings();
   const [searchQuery, setSearchQuery] = useState("");
-  const [regionFilter, setRegionFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [regionFilter, setRegionFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("default");
 
   const filteredSuppliers = suppliers.filter((supplier) => {
     const query = searchQuery.toLowerCase();
@@ -22,8 +22,8 @@ export default function Dashboard() {
       supplier.instagram.toLowerCase().includes(query) ||
       supplier.region.toLowerCase().includes(query);
     
-    const matchesRegion = !regionFilter || supplier.region === regionFilter;
-    const matchesType = !typeFilter || supplier.type === typeFilter;
+    const matchesRegion = regionFilter === "all" || supplier.region === regionFilter;
+    const matchesType = typeFilter === "all" || supplier.type === typeFilter;
     
     return matchesSearch && matchesRegion && matchesType;
   }).sort((a, b) => {

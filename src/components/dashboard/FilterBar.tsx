@@ -50,7 +50,7 @@ export function FilterBar({
             <SelectValue placeholder="Região" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
-            <SelectItem value="">Todas</SelectItem>
+            <SelectItem value="all">Todas</SelectItem>
             <SelectItem value="Sul">Sul</SelectItem>
             <SelectItem value="Sudeste">Sudeste</SelectItem>
             <SelectItem value="Nordeste">Nordeste</SelectItem>
@@ -64,7 +64,7 @@ export function FilterBar({
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
-            <SelectItem value="">Todos</SelectItem>
+            <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="Fabricante">Fabricante</SelectItem>
             <SelectItem value="Atacadista">Atacadista</SelectItem>
           </SelectContent>
@@ -75,7 +75,7 @@ export function FilterBar({
             <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
-            <SelectItem value="">Padrão</SelectItem>
+            <SelectItem value="default">Padrão</SelectItem>
             <SelectItem value="rating">Melhor Avaliação</SelectItem>
             <SelectItem value="name">Nome (A-Z)</SelectItem>
           </SelectContent>
@@ -87,9 +87,9 @@ export function FilterBar({
           className="shrink-0"
           onClick={() => {
             onSearchChange("");
-            onRegionChange("");
-            onTypeChange("");
-            onSortChange("");
+            onRegionChange("all");
+            onTypeChange("all");
+            onSortChange("default");
           }}
         >
           <Filter className="w-4 h-4" />
