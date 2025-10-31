@@ -351,9 +351,9 @@ export default function AddSupplier() {
             <p className="text-sm text-muted-foreground mb-4">
               ou clique para selecionar
             </p>
-            <Button variant="outline" type="button" disabled={uploading}>
+            <span className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 pointer-events-none">
               {uploading ? "Carregando..." : "Selecionar Arquivo"}
-            </Button>
+            </span>
             <p className="text-xs text-muted-foreground mt-4">
               Formatos aceitos: .xlsx, .csv
             </p>
