@@ -40,10 +40,45 @@ export function useCategories() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (name: string) => {
+      // First get the category ID
+      const { data: category, error: selectError } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("name", name)
+        .single();
+
+      if (selectError) throw selectError;
+
+      // Delete the category
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", category.id);
+
+      if (error) {
+        if (error.code === "23503") {
+          throw new Error("Não é possível deletar categoria em uso");
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      toast.success("Categoria removida com sucesso!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao remover categoria");
+    },
+  });
+
   return {
     categories,
     isLoading,
     createCategory: createMutation.mutate,
     isCreating: createMutation.isPending,
+    deleteCategory: deleteMutation.mutate,
+    isDeleting: deleteMutation.isPending,
   };
 }

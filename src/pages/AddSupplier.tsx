@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function AddSupplier() {
-  const { categories, createCategory, isCreating } = useCategories();
+  const { categories, createCategory, isCreating, deleteCategory, isDeleting } = useCategories();
   const queryClient = useQueryClient();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -53,6 +53,14 @@ export default function AddSupplier() {
         setShowCategoryDialog(false);
       },
     });
+  };
+
+  const handleDeleteCategory = (categoryName: string) => {
+    if (confirm(`Tem certeza que deseja remover a categoria "${categoryName}"?`)) {
+      deleteCategory(categoryName);
+      // Remove from selected if present
+      setSelectedCategories(prev => prev.filter(c => c !== categoryName));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -213,17 +221,33 @@ export default function AddSupplier() {
             </div>
 
             <div>
-              <Label>Categorias *</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex items-center justify-between mb-2">
+                <Label>Categorias *</Label>
+                <p className="text-xs text-muted-foreground">Clique para selecionar/remover</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
-                  <Badge
-                    key={category}
-                    variant={selectedCategories.includes(category) ? "default" : "outline"}
-                    className="cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => toggleCategory(category)}
-                  >
-                    {category}
-                  </Badge>
+                  <div key={category} className="relative group">
+                    <Badge
+                      variant={selectedCategories.includes(category) ? "default" : "outline"}
+                      className="cursor-pointer hover:scale-105 transition-transform pr-7"
+                      onClick={() => toggleCategory(category)}
+                    >
+                      {category}
+                    </Badge>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCategory(category);
+                      }}
+                      disabled={isDeleting}
+                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                      title="Remover categoria"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
                 ))}
                 <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
                   <DialogTrigger asChild>
