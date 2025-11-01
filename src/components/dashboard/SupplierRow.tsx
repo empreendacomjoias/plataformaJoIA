@@ -22,6 +22,7 @@ interface SupplierRowProps {
   supplier: Supplier;
   onToggleFavorite: (id: string) => void;
   onRate: (id: string, rating: number) => void;
+  hideAll?: boolean;
 }
 
 const defaultCategoryColors: Record<string, string> = {
@@ -56,12 +57,14 @@ const getCategoryColor = (category: string) => {
   return categoryColorPalette[hash % categoryColorPalette.length];
 };
 
-export function SupplierRow({ supplier, onToggleFavorite, onRate }: SupplierRowProps) {
+export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = false }: SupplierRowProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isInfoHidden, setIsInfoHidden] = useState(false);
+  
+  const shouldHide = hideAll || isInfoHidden;
 
   const handleCopyInstagram = () => {
     const instagramUrl = `https://instagram.com/${supplier.instagram.replace("@", "")}`;
@@ -100,7 +103,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate }: SupplierRowP
 
       {/* Name */}
       <td className="p-4">
-        <div className={cn("font-semibold", isInfoHidden && "blur-sm select-none")}>
+        <div className={cn("font-semibold", shouldHide && "blur-sm select-none")}>
           {supplier.name}
         </div>
       </td>
@@ -154,7 +157,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate }: SupplierRowP
           rel="noopener noreferrer"
           className={cn(
             "flex items-center gap-2 text-accent hover:text-accent/80 transition-colors",
-            isInfoHidden && "blur-sm select-none pointer-events-none"
+            shouldHide && "blur-sm select-none pointer-events-none"
           )}
         >
           <span className="text-sm">@{instagramUsername}</span>

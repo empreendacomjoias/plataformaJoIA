@@ -1,6 +1,10 @@
 import { Supplier } from "@/types/supplier";
 import { SupplierRow } from "./SupplierRow";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SupplierTableProps {
   suppliers: Supplier[];
@@ -9,8 +13,35 @@ interface SupplierTableProps {
 }
 
 export function SupplierTable({ suppliers, onToggleFavorite, onRate }: SupplierTableProps) {
+  const { isAdmin } = useAuth();
+  const [hideAll, setHideAll] = useState(false);
   return (
     <Card className="overflow-hidden border-border/50 shadow-lg animate-fade-in">
+      {isAdmin && (
+        <div className="p-4 border-b border-border/50 flex items-center justify-between bg-secondary/30">
+          <span className="text-sm font-medium text-muted-foreground">
+            Controles de Privacidade
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setHideAll(!hideAll)}
+            className="gap-2"
+          >
+            {hideAll ? (
+              <>
+                <Eye className="w-4 h-4" />
+                Mostrar Todos
+              </>
+            ) : (
+              <>
+                <EyeOff className="w-4 h-4" />
+                Ocultar Todos
+              </>
+            )}
+          </Button>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-secondary/50 backdrop-blur-sm border-b border-border">
@@ -51,6 +82,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate }: SupplierT
                 supplier={supplier}
                 onToggleFavorite={onToggleFavorite}
                 onRate={onRate}
+                hideAll={hideAll}
               />
             ))}
           </tbody>
