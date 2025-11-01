@@ -1,4 +1,3 @@
-import { Trophy, Medal } from "lucide-react";
 import { Supplier } from "@/types/supplier";
 import { Card } from "@/components/ui/card";
 
@@ -17,7 +16,7 @@ export function TopRanking({ suppliers }: TopRankingProps) {
     <Card className="bg-gradient-to-br from-card to-secondary/30 border-primary/30 shadow-lg shadow-primary/10 animate-fade-in">
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <Trophy className="w-6 h-6 text-accent animate-glow" />
+          <span className="text-2xl">🏆</span>
           <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             TOP 5 Fornecedores
           </h2>
