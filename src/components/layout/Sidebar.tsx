@@ -1,4 +1,4 @@
-import { List, Heart, Trophy, Plus, Settings, LogOut, Shield } from "lucide-react";
+import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +10,7 @@ const menuItems = [
   { icon: List, label: "Lista de Fornecedores", path: "/" },
   { icon: Heart, label: "Meus Favoritos", path: "/favoritos" },
   { icon: Trophy, label: "Ranking", path: "/ranking" },
+  { icon: Sparkles, label: "JoIA Indica", path: "/joia-indica" },
   { icon: Plus, label: "Adicionar Fornecedor", path: "/adicionar" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];

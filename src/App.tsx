@@ -8,6 +8,8 @@ import { Sidebar } from "./components/layout/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Favorites from "./pages/Favorites";
 import Ranking from "./pages/Ranking";
+import JoiaIndica from "./pages/JoiaIndica";
+import JoiaIndicaAdmin from "./pages/JoiaIndicaAdmin";
 import AddSupplier from "./pages/AddSupplier";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
@@ -52,6 +54,8 @@ const App = () => (
                       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                       <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
                       <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
+                      <Route path="/joia-indica" element={<ProtectedRoute><JoiaIndica /></ProtectedRoute>} />
+                      <Route path="/joia-indica/admin" element={<ProtectedRoute adminOnly><JoiaIndicaAdmin /></ProtectedRoute>} />
                       <Route path="/adicionar" element={<ProtectedRoute adminOnly><AddSupplier /></ProtectedRoute>} />
                       <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                       <Route path="*" element={<NotFound />} />

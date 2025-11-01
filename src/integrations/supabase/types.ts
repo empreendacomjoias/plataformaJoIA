@@ -88,6 +88,109 @@ export type Database = {
           },
         ]
       }
+      recommendation_categories: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      recommendation_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          recommendation_id: string
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          recommendation_id: string
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          recommendation_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendation_clicks_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recommendations: {
+        Row: {
+          affiliate_link: string
+          category_id: string
+          click_count: number
+          created_at: string
+          created_by: string | null
+          cta_text: string
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          tags: string[] | null
+        }
+        Insert: {
+          affiliate_link: string
+          category_id: string
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          cta_text?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          tags?: string[] | null
+        }
+        Update: {
+          affiliate_link?: string
+          category_id?: string
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          cta_text?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          tags?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "recommendation_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_categories: {
         Row: {
           category_id: string
