@@ -46,7 +46,7 @@ export default function JoiaIndica() {
       {/* Header */}
       <div className="mb-8 text-center space-y-4">
         <div className="flex items-center justify-center gap-3 mb-2">
-          <Sparkles className="w-8 h-8 text-accent animate-glow" />
+          <Sparkles className="w-10 h-10 text-primary" />
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             JoIA Indica
           </h1>
