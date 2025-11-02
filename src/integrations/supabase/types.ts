@@ -32,6 +32,50 @@ export type Database = {
         }
         Relationships: []
       }
+      club_members: {
+        Row: {
+          benefit: string
+          coupon_code: string
+          created_at: string
+          created_by: string | null
+          expiry_date: string | null
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          supplier_id: string
+        }
+        Insert: {
+          benefit: string
+          coupon_code: string
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          supplier_id: string
+        }
+        Update: {
+          benefit?: string
+          coupon_code?: string
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_members_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: true
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -10,6 +10,8 @@ import Favorites from "./pages/Favorites";
 import Ranking from "./pages/Ranking";
 import JoiaIndica from "./pages/JoiaIndica";
 import JoiaIndicaAdmin from "./pages/JoiaIndicaAdmin";
+import ClubJoia from "./pages/ClubJoia";
+import ClubJoiaAdmin from "./pages/ClubJoiaAdmin";
 import AddSupplier from "./pages/AddSupplier";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
@@ -54,6 +56,8 @@ const App = () => (
                       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                       <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
                       <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
+                      <Route path="/club-joia" element={<ProtectedRoute><ClubJoia /></ProtectedRoute>} />
+                      <Route path="/club-joia/admin" element={<ProtectedRoute adminOnly><ClubJoiaAdmin /></ProtectedRoute>} />
                       <Route path="/joia-indica" element={<ProtectedRoute><JoiaIndica /></ProtectedRoute>} />
                       <Route path="/joia-indica/admin" element={<ProtectedRoute adminOnly><JoiaIndicaAdmin /></ProtectedRoute>} />
                       <Route path="/adicionar" element={<ProtectedRoute adminOnly><AddSupplier /></ProtectedRoute>} />

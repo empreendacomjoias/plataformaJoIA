@@ -1,4 +1,4 @@
-import { Heart, Factory, ShoppingBag, ExternalLink, MoreVertical, Copy, Trash2, Pencil, Eye, EyeOff } from "lucide-react";
+import { Heart, Factory, ShoppingBag, ExternalLink, MoreVertical, Copy, Trash2, Pencil, Eye, EyeOff, Gem } from "lucide-react";
 import { useState } from "react";
 import { Supplier } from "@/types/supplier";
 import { StarRating } from "./StarRating";
@@ -10,6 +10,7 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { EditSupplierDialog } from "./EditSupplierDialog";
+import { AddToClubDialog } from "./AddToClubDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +63,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
   const { deleteSupplier } = useSuppliers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddToClubDialog, setShowAddToClubDialog] = useState(false);
   const [isInfoHidden, setIsInfoHidden] = useState(false);
   
   const shouldHide = hideAll || isInfoHidden;
@@ -195,6 +197,13 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
+                  onClick={() => setShowAddToClubDialog(true)}
+                  className="cursor-pointer"
+                >
+                  <Gem className="w-4 h-4 mr-2" />
+                  Adicionar ao Club JoIA
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={() => setIsInfoHidden(!isInfoHidden)}
                   className="cursor-pointer"
                 >
@@ -236,6 +245,12 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       supplier={supplier}
       open={showEditDialog}
       onOpenChange={setShowEditDialog}
+    />
+
+    <AddToClubDialog
+      supplier={supplier}
+      open={showAddToClubDialog}
+      onOpenChange={setShowAddToClubDialog}
     />
     </>
   );
