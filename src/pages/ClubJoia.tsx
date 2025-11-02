@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Instagram, Search, Shield, Sparkles } from "lucide-react";
+import { Copy, Instagram, Search, Shield, Sparkles, Gem } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -54,9 +54,7 @@ export default function ClubJoia() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-2xl">💎</span>
-              </div>
+              <Gem className="w-10 h-10 text-primary" />
               <h1 className="text-3xl font-bold">Club JoIA</h1>
             </div>
             <p className="text-muted-foreground max-w-2xl">
