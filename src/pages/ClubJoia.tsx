@@ -39,6 +39,11 @@ export default function ClubJoia() {
     return new Date(date) < new Date();
   };
 
+  const getInstagramUrl = (instagram: string) => {
+    const username = instagram.replace("@", "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
+    return `https://instagram.com/${username}`;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -133,7 +138,7 @@ export default function ClubJoia() {
                     <Button
                       variant="outline"
                       className="w-full gap-2"
-                      onClick={() => window.open(`https://instagram.com/${member.supplier?.instagram.replace('@', '')}`, '_blank')}
+                      onClick={() => window.open(getInstagramUrl(member.supplier?.instagram || ''), '_blank')}
                     >
                       <Instagram className="w-4 h-4" />
                       Acessar Fornecedor
@@ -188,7 +193,7 @@ export default function ClubJoia() {
                     <Button
                       variant="outline"
                       className="w-full gap-2"
-                      onClick={() => window.open(`https://instagram.com/${member.supplier?.instagram.replace('@', '')}`, '_blank')}
+                      onClick={() => window.open(getInstagramUrl(member.supplier?.instagram || ''), '_blank')}
                     >
                       <Instagram className="w-4 h-4" />
                       Acessar Fornecedor
