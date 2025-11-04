@@ -69,7 +69,11 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
   const shouldHide = hideAll || isInfoHidden;
 
   const handleCopyInstagram = () => {
-    const username = supplier.instagram.replace("@", "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
+    const username = supplier.instagram
+      .trim()
+      .replace("@", "")
+      .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
+      .replace(/\/$/, ""); // Remove trailing slash
     const instagramUrl = `https://www.instagram.com/${username}`;
     navigator.clipboard.writeText(instagramUrl);
     toast.success("Link do Instagram copiado!");
@@ -81,7 +85,11 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
   };
 
   // Normalize Instagram URL
-  const instagramUsername = supplier.instagram.replace("@", "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
+  const instagramUsername = supplier.instagram
+    .trim()
+    .replace("@", "")
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
+    .replace(/\/$/, ""); // Remove trailing slash
   const instagramUrl = `https://www.instagram.com/${instagramUsername}`;
 
   return (

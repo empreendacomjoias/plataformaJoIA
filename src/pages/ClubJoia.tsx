@@ -40,7 +40,11 @@ export default function ClubJoia() {
   };
 
   const getInstagramUrl = (instagram: string) => {
-    const username = instagram.replace("@", "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
+    const username = instagram
+      .trim()
+      .replace("@", "")
+      .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
+      .replace(/\/$/, ""); // Remove trailing slash
     return `https://www.instagram.com/${username}`;
   };
 
