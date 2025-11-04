@@ -79,14 +79,15 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
 
   const instagramUsername = normalizeInstagramUsername(supplier.instagram);
   const instagramUrl = `https://www.instagram.com/${instagramUsername}`;
-  
-  console.log('Instagram original:', supplier.instagram);
-  console.log('Instagram username:', instagramUsername);
-  console.log('Instagram URL:', instagramUrl);
 
   const handleCopyInstagram = () => {
     navigator.clipboard.writeText(instagramUrl);
     toast.success("Link do Instagram copiado!");
+  };
+
+  const handleInstagramClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open(instagramUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleDelete = () => {
@@ -166,10 +167,9 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       <td className="p-4">
         <a
           href={instagramUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={handleInstagramClick}
           className={cn(
-            "flex items-center gap-2 text-accent hover:text-accent/80 transition-colors",
+            "flex items-center gap-2 text-accent hover:text-accent/80 transition-colors cursor-pointer",
             shouldHide && "blur-sm select-none pointer-events-none"
           )}
         >
