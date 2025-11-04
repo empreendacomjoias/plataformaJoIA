@@ -69,7 +69,8 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
   const shouldHide = hideAll || isInfoHidden;
 
   const handleCopyInstagram = () => {
-    const instagramUrl = `https://instagram.com/${supplier.instagram.replace("@", "")}`;
+    const username = supplier.instagram.replace("@", "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
+    const instagramUrl = `https://www.instagram.com/${username}`;
     navigator.clipboard.writeText(instagramUrl);
     toast.success("Link do Instagram copiado!");
   };
@@ -81,7 +82,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
 
   // Normalize Instagram URL
   const instagramUsername = supplier.instagram.replace("@", "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
-  const instagramUrl = `https://instagram.com/${instagramUsername}`;
+  const instagramUrl = `https://www.instagram.com/${instagramUsername}`;
 
   return (
     <>
