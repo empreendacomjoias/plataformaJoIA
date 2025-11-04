@@ -79,6 +79,10 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
 
   const instagramUsername = normalizeInstagramUsername(supplier.instagram);
   const instagramUrl = `https://www.instagram.com/${instagramUsername}`;
+  
+  console.log('Instagram original:', supplier.instagram);
+  console.log('Instagram username:', instagramUsername);
+  console.log('Instagram URL:', instagramUrl);
 
   const handleCopyInstagram = () => {
     navigator.clipboard.writeText(instagramUrl);
