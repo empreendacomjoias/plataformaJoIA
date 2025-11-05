@@ -76,6 +76,33 @@ export type Database = {
           },
         ]
       }
+      module_descriptions: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          module_key: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          module_key: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          module_key?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -301,6 +328,30 @@ export type Database = {
           rating_count?: number | null
           region?: string
           type?: string
+        }
+        Relationships: []
+      }
+      support_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          support_email: string | null
+          support_whatsapp: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          support_email?: string | null
+          support_whatsapp?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          support_email?: string | null
+          support_whatsapp?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
