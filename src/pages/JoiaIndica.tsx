@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Search, Sparkles, Settings } from "lucide-react";
+import { Search, Sparkles, Settings, Eye, EyeOff } from "lucide-react";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useRecommendationCategories } from "@/hooks/useRecommendationCategories";
+import { useModuleDescription } from "@/hooks/useModuleDescriptions";
 import { RecommendationCard } from "@/components/recommendations/RecommendationCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,12 @@ import { useNavigate } from "react-router-dom";
 export default function JoiaIndica() {
   const { recommendations, isLoading, trackClick } = useRecommendations();
   const { categories } = useRecommendationCategories();
+  const { data: moduleDesc } = useModuleDescription("joia_indica");
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [hideNames, setHideNames] = useState(false);
 
   const handleCtaClick = async (recommendation: any) => {
     try {
@@ -48,23 +51,32 @@ export default function JoiaIndica() {
         <div className="flex items-center justify-center gap-3 mb-2">
           <Sparkles className="w-10 h-10 text-primary" />
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            JoIA Indica
+            {moduleDesc?.title || "JoIA Indica"}
           </h1>
-          {isAdmin && (
+          <div className="flex gap-2 ml-4">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate("/joia-indica/admin")}
-              className="ml-4"
+              onClick={() => setHideNames(!hideNames)}
+              title={hideNames ? "Mostrar nomes" : "Ocultar nomes"}
             >
-              <Settings className="w-4 h-4 mr-2" />
-              Admin
+              {hideNames ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+              {hideNames ? "Mostrar Todos" : "Ocultar Todos"}
             </Button>
-          )}
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/joia-indica/admin")}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            )}
+          </div>
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Tudo que um(a) empreendedor(a) precisa — em um só lugar.<br />
-          Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam.
+          {moduleDesc?.description || "Ferramentas e serviços recomendados para empreendedores que querem crescer."}
         </p>
       </div>
 
@@ -130,6 +142,7 @@ export default function JoiaIndica() {
               key={recommendation.id}
               recommendation={recommendation}
               onCtaClick={() => handleCtaClick(recommendation)}
+              hideName={hideNames}
             />
           ))}
         </div>

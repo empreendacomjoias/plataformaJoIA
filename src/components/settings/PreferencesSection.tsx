@@ -1,5 +1,4 @@
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function PreferencesSection() {
@@ -23,15 +22,6 @@ export function PreferencesSection() {
           <ThemeToggle />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Notificações</Label>
-            <p className="text-sm text-muted-foreground">
-              Receber notificações sobre fornecedores
-            </p>
-          </div>
-          <Switch disabled />
-        </div>
       </div>
     </div>
   );

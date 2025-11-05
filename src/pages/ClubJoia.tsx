@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { useClubMembers } from "@/hooks/useClubMembers";
+import { useModuleDescription } from "@/hooks/useModuleDescriptions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Instagram, Search, Shield, Sparkles, Gem } from "lucide-react";
+import { Copy, Instagram, Search, Shield, Sparkles, Gem, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function ClubJoia() {
   const { members, isLoading } = useClubMembers();
+  const { data: moduleDesc } = useModuleDescription("club_joia");
   const { toast } = useToast();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [hideInfo, setHideInfo] = useState(true);
 
   const filteredMembers = members.filter((member) =>
     member.is_active &&
@@ -64,19 +67,28 @@ export default function ClubJoia() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Gem className="w-10 h-10 text-primary" />
-              <h1 className="text-3xl font-bold">Club JoIA</h1>
+              <h1 className="text-3xl font-bold">{moduleDesc?.title || "Club JoIA"}</h1>
             </div>
             <p className="text-muted-foreground max-w-2xl">
-              Tudo que um(a) empreendedor(a) precisa — em um só lugar.
-              Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam.
+              {moduleDesc?.description || "Benefícios exclusivos dos nossos parceiros para você economizar no seu negócio!"}
             </p>
           </div>
-          {isAdmin && (
-            <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2">
-              <Shield className="w-4 h-4" />
-              Admin
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setHideInfo(!hideInfo)} 
+              variant="outline" 
+              size="icon"
+              title={hideInfo ? "Mostrar informações" : "Ocultar informações"}
+            >
+              {hideInfo ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </Button>
-          )}
+            {isAdmin && (
+              <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2">
+                <Shield className="w-4 h-4" />
+                Admin
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Search */}
@@ -102,7 +114,9 @@ export default function ClubJoia() {
                 <Card key={member.id} className="p-6 space-y-4 border-primary/50 bg-gradient-to-br from-primary/5 to-accent/5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-lg">{member.supplier?.name}</h3>
+                      <h3 className={`font-semibold text-lg ${hideInfo ? 'blur-sm select-none' : ''}`}>
+                        {member.supplier?.name}
+                      </h3>
                       <div className="flex gap-2 mt-2 flex-wrap">
                         {member.supplier?.categories.map((cat) => (
                           <Badge key={cat} variant="secondary" className="text-xs">
@@ -141,11 +155,13 @@ export default function ClubJoia() {
                   {member.supplier?.instagram && (
                     <Button
                       variant="outline"
-                      className="w-full gap-2"
+                      className={`w-full gap-2 ${hideInfo ? 'blur-sm pointer-events-none' : ''}`}
                       onClick={() => window.open(getInstagramUrl(member.supplier?.instagram || ''), '_blank')}
                     >
                       <Instagram className="w-4 h-4" />
-                      Acessar Fornecedor
+                      <span className={hideInfo ? 'blur-sm select-none' : ''}>
+                        @{member.supplier?.instagram.replace('@', '')}
+                      </span>
                     </Button>
                   )}
                 </Card>
@@ -162,7 +178,9 @@ export default function ClubJoia() {
               {regularMembers.map((member) => (
                 <Card key={member.id} className="p-6 space-y-4">
                   <div>
-                    <h3 className="font-semibold text-lg">{member.supplier?.name}</h3>
+                    <h3 className={`font-semibold text-lg ${hideInfo ? 'blur-sm select-none' : ''}`}>
+                      {member.supplier?.name}
+                    </h3>
                     <div className="flex gap-2 mt-2 flex-wrap">
                       {member.supplier?.categories.map((cat) => (
                         <Badge key={cat} variant="secondary" className="text-xs">
@@ -196,11 +214,13 @@ export default function ClubJoia() {
                   {member.supplier?.instagram && (
                     <Button
                       variant="outline"
-                      className="w-full gap-2"
+                      className={`w-full gap-2 ${hideInfo ? 'blur-sm pointer-events-none' : ''}`}
                       onClick={() => window.open(getInstagramUrl(member.supplier?.instagram || ''), '_blank')}
                     >
                       <Instagram className="w-4 h-4" />
-                      Acessar Fornecedor
+                      <span className={hideInfo ? 'blur-sm select-none' : ''}>
+                        @{member.supplier?.instagram.replace('@', '')}
+                      </span>
                     </Button>
                   )}
                 </Card>
