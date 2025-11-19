@@ -21,9 +21,9 @@ export default function ClubJoia() {
 
   const filteredMembers = members.filter((member) =>
     member.is_active &&
-    (member.supplier?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.benefit.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.coupon_code.toLowerCase().includes(searchTerm.toLowerCase()))
+    (member.supplier?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.benefit?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.coupon_code?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const featuredMembers = filteredMembers.filter((m) => m.is_featured);
