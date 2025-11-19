@@ -16,6 +16,7 @@ const authSchema = z.object({
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -27,6 +28,22 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      if (isForgotPassword) {
+        // Password reset flow
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/auth?reset=true`,
+        });
+
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+
+        toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
+        setIsForgotPassword(false);
+        return;
+      }
+
       // Validate input
       const validationData = isLogin 
         ? { email, password }
@@ -99,12 +116,16 @@ export default function Auth() {
             Prata 925
           </h1>
           <p className="text-muted-foreground mt-2">
-            {isLogin ? "Faça login na sua conta" : "Crie sua conta"}
+            {isForgotPassword 
+              ? "Recuperar senha" 
+              : isLogin 
+              ? "Faça login na sua conta" 
+              : "Crie sua conta"}
           </p>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-4">
-          {!isLogin && (
+          {!isLogin && !isForgotPassword && (
             <div className="space-y-2">
               <Label htmlFor="fullName">Nome Completo</Label>
               <Input
@@ -132,39 +153,71 @@ export default function Auth() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              maxLength={100}
-            />
-          </div>
+          {!isForgotPassword && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                maxLength={100}
+              />
+            </div>
+          )}
 
           <Button
             type="submit"
             className="w-full"
             disabled={loading}
           >
-            {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}
+            {loading 
+              ? "Carregando..." 
+              : isForgotPassword 
+              ? "Enviar email de recuperação"
+              : isLogin 
+              ? "Entrar" 
+              : "Cadastrar"}
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-primary hover:underline"
-          >
-            {isLogin
-              ? "Não tem uma conta? Cadastre-se"
-              : "Já tem uma conta? Faça login"}
-          </button>
+        <div className="mt-6 text-center space-y-2">
+          {!isForgotPassword ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-sm text-primary hover:underline block w-full"
+              >
+                {isLogin
+                  ? "Não tem uma conta? Cadastre-se"
+                  : "Já tem uma conta? Faça login"}
+              </button>
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                >
+                  Esqueci minha senha
+                </button>
+              )}
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setIsForgotPassword(false);
+                setIsLogin(true);
+              }}
+              className="text-sm text-primary hover:underline"
+            >
+              Voltar para login
+            </button>
+          )}
         </div>
       </Card>
     </div>
