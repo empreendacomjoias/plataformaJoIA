@@ -14,21 +14,16 @@ import ClubJoia from "./pages/ClubJoia";
 import ClubJoiaAdmin from "./pages/ClubJoiaAdmin";
 import AddSupplier from "./pages/AddSupplier";
 import Settings from "./pages/Settings";
-import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
-function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
-  const { user, isAdmin, loading } = useAuth();
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { isAdmin, loading } = useAuth();
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (adminOnly && !isAdmin) {
+  if (!isAdmin) {
     return <Navigate to="/" replace />;
   }
 
@@ -44,31 +39,23 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route
-              path="/*"
-              element={
-                <div className="flex min-h-screen w-full bg-background">
-                  <Sidebar />
-                  <main className="flex-1 overflow-auto">
-                    <Routes>
-                      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                      <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-                      <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
-                      <Route path="/club-joia" element={<ProtectedRoute><ClubJoia /></ProtectedRoute>} />
-                      <Route path="/club-joia/admin" element={<ProtectedRoute adminOnly><ClubJoiaAdmin /></ProtectedRoute>} />
-                      <Route path="/joia-indica" element={<ProtectedRoute><JoiaIndica /></ProtectedRoute>} />
-                      <Route path="/joia-indica/admin" element={<ProtectedRoute adminOnly><JoiaIndicaAdmin /></ProtectedRoute>} />
-                      <Route path="/adicionar" element={<ProtectedRoute adminOnly><AddSupplier /></ProtectedRoute>} />
-                      <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </main>
-                </div>
-              }
-            />
-          </Routes>
+          <div className="flex min-h-screen w-full bg-background">
+            <Sidebar />
+            <main className="flex-1 overflow-auto">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/favoritos" element={<Favorites />} />
+                <Route path="/ranking" element={<Ranking />} />
+                <Route path="/club-joia" element={<ClubJoia />} />
+                <Route path="/club-joia/admin" element={<AdminRoute><ClubJoiaAdmin /></AdminRoute>} />
+                <Route path="/joia-indica" element={<JoiaIndica />} />
+                <Route path="/joia-indica/admin" element={<AdminRoute><JoiaIndicaAdmin /></AdminRoute>} />
+                <Route path="/adicionar" element={<AdminRoute><AddSupplier /></AdminRoute>} />
+                <Route path="/configuracoes" element={<Settings />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </div>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
