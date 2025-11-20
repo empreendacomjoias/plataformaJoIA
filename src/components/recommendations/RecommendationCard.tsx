@@ -7,10 +7,9 @@ import { Button } from "@/components/ui/button";
 interface RecommendationCardProps {
   recommendation: Recommendation;
   onCtaClick: () => void;
-  hideName?: boolean;
 }
 
-export function RecommendationCard({ recommendation, onCtaClick, hideName = false }: RecommendationCardProps) {
+export function RecommendationCard({ recommendation, onCtaClick }: RecommendationCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in">
       {recommendation.image_url && (
@@ -25,9 +24,7 @@ export function RecommendationCard({ recommendation, onCtaClick, hideName = fals
       
       <div className="p-6 space-y-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className={`font-bold text-lg line-clamp-2 ${hideName ? 'blur-sm select-none' : ''}`}>
-            {recommendation.name}
-          </h3>
+          <h3 className="font-bold text-lg line-clamp-2">{recommendation.name}</h3>
           <Badge
             variant="outline"
             style={{

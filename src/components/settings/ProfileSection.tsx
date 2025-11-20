@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { User } from "lucide-react";
 
 export function ProfileSection() {
   const { user } = useAuth();
@@ -39,6 +41,18 @@ export function ProfileSection() {
         <p className="text-sm text-muted-foreground">
           Gerencie suas informações pessoais
         </p>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <Avatar className="w-20 h-20">
+          <AvatarImage src="" />
+          <AvatarFallback className="bg-primary/10">
+            <User className="w-8 h-8 text-primary" />
+          </AvatarFallback>
+        </Avatar>
+        <div className="text-sm text-muted-foreground">
+          Avatar em breve
+        </div>
       </div>
 
       <div className="space-y-4">
