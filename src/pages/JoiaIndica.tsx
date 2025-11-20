@@ -47,16 +47,16 @@ export default function JoiaIndica() {
     });
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-7xl">
       {/* Header */}
-      <div className="mb-8 text-center space-y-4">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <Sparkles className="w-10 h-10 text-primary" />
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <div className="mb-6 md:mb-8 text-center space-y-3 md:space-y-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-2">
+          <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             {moduleDescription?.title || "JoIA Indica"}
           </h1>
           {isAdmin && (
-            <div className="flex gap-2 ml-4">
+            <div className="flex flex-wrap gap-2 justify-center mt-2">
               {moduleDescription && (
                 <EditDescriptionDialog
                   id={moduleDescription.id}
@@ -76,15 +76,15 @@ export default function JoiaIndica() {
             </div>
           )}
         </div>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
           {moduleDescription?.description || "Tudo que um(a) empreendedor(a) precisa — em um só lugar. Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam."}
         </p>
       </div>
 
       {/* Filters */}
-      <div className="mb-8 space-y-4">
+      <div className="mb-6 md:mb-8 space-y-3 md:space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
           <Input
             placeholder="Buscar por nome, descrição ou tag..."
             value={searchQuery}

@@ -31,22 +31,22 @@ export function FilterBar({
   onSortChange
 }: FilterBarProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 p-6 bg-card rounded-lg border border-border/50 shadow-lg animate-slide-in">
+    <div className="flex flex-col gap-3 sm:gap-4 p-4 sm:p-5 md:p-6 bg-card rounded-lg border border-border/50 shadow-lg animate-slide-in">
       {/* Search */}
-      <div className="flex-1 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
         <Input
           placeholder="Buscar por nome, @ ou região..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 bg-background/50 border-border/50 focus:border-primary transition-colors"
+          className="pl-9 sm:pl-10 bg-background/50 border-border/50 focus:border-primary transition-colors text-sm sm:text-base"
         />
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Select value={regionFilter} onValueChange={onRegionChange}>
-          <SelectTrigger className="w-[140px] bg-background/50">
+          <SelectTrigger className="w-full sm:w-[140px] bg-background/50 text-sm">
             <SelectValue placeholder="Região" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
@@ -60,7 +60,7 @@ export function FilterBar({
         </Select>
 
         <Select value={typeFilter} onValueChange={onTypeChange}>
-          <SelectTrigger className="w-[140px] bg-background/50">
+          <SelectTrigger className="w-full sm:w-[140px] bg-background/50 text-sm">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
@@ -71,7 +71,7 @@ export function FilterBar({
         </Select>
 
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="w-[160px] bg-background/50">
+          <SelectTrigger className="w-full sm:w-[160px] bg-background/50 text-sm">
             <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">

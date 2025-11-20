@@ -62,21 +62,21 @@ export default function ClubJoia() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-3 sm:p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Gem className="w-10 h-10 text-primary" />
-              <h1 className="text-3xl font-bold">{moduleDescription?.title || "Club JoIA"}</h1>
+              <Gem className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+              <h1 className="text-2xl sm:text-3xl font-bold">{moduleDescription?.title || "Club JoIA"}</h1>
             </div>
-            <p className="text-muted-foreground max-w-2xl">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
               {moduleDescription?.description || "Tudo que um(a) empreendedor(a) precisa — em um só lugar. Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam."}
             </p>
           </div>
           {isAdmin && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               {moduleDescription && (
                 <EditDescriptionDialog
                   id={moduleDescription.id}
@@ -85,7 +85,7 @@ export default function ClubJoia() {
                   onSave={(id, title, description) => updateDescription.mutate({ id, title, description })}
                 />
               )}
-              <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2">
+              <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2 flex-1 sm:flex-initial">
                 <Shield className="w-4 h-4" />
                 Admin
               </Button>

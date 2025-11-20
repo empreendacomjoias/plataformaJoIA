@@ -99,14 +99,14 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
     <>
       <tr className="border-b border-border/50 hover:bg-secondary/30 transition-colors group">
       {/* Favorite */}
-      <td className="p-4">
+      <td className="p-2 sm:p-4">
         <button
           onClick={() => onToggleFavorite(supplier.id)}
           className="transition-transform hover:scale-125"
         >
           <Heart
             className={cn(
-              "w-5 h-5 transition-all",
+              "w-4 h-4 sm:w-5 sm:h-5 transition-all",
               supplier.isFavorite
                 ? "fill-red-500 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]"
                 : "text-muted-foreground hover:text-red-500"
@@ -116,14 +116,14 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       </td>
 
       {/* Name */}
-      <td className="p-4">
-        <div className={cn("font-semibold", shouldHide && "blur-sm select-none")}>
+      <td className="p-2 sm:p-4">
+        <div className={cn("font-semibold text-sm sm:text-base", shouldHide && "blur-sm select-none")}>
           {supplier.name}
         </div>
       </td>
 
       {/* Type */}
-      <td className="p-4">
+      <td className="hidden md:table-cell p-2 sm:p-4">
         <div className="flex items-center gap-2">
           {supplier.type === "Fabricante" ? (
             <Factory className="w-4 h-4 text-accent" />
@@ -135,7 +135,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       </td>
 
       {/* Categories */}
-      <td className="p-4">
+      <td className="hidden lg:table-cell p-2 sm:p-4">
         <div className="flex flex-wrap gap-1.5">
           {supplier.categories.map((category) => (
             <Badge
@@ -150,21 +150,21 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       </td>
 
       {/* Region */}
-      <td className="p-4">
-        <Badge variant="secondary" className="font-mono">
+      <td className="hidden sm:table-cell p-2 sm:p-4">
+        <Badge variant="secondary" className="font-mono text-xs">
           {supplier.region}
         </Badge>
       </td>
 
       {/* Min Order */}
-      <td className="p-4">
+      <td className="hidden xl:table-cell p-2 sm:p-4">
         <span className="text-sm font-medium">
           R$ {supplier.minOrder.toLocaleString("pt-BR")}
         </span>
       </td>
 
       {/* Instagram */}
-      <td className="p-4">
+      <td className="hidden md:table-cell p-2 sm:p-4">
         <a
           href={instagramUrl}
           onClick={handleInstagramClick}
@@ -179,7 +179,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       </td>
 
       {/* Rating */}
-      <td className="p-4">
+      <td className="p-2 sm:p-4">
         <StarRating
           rating={supplier.rating}
           ratingCount={supplier.ratingCount}
@@ -188,15 +188,15 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       </td>
 
       {/* Actions */}
-      <td className="p-4">
+      <td className="p-2 sm:p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 sm:h-10 sm:w-10"
             >
-              <MoreVertical className="w-4 h-4" />
+              <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-card border-border">
