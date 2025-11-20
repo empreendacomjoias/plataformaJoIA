@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Search, Sparkles, Settings } from "lucide-react";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useRecommendationCategories } from "@/hooks/useRecommendationCategories";
+import { useModuleDescriptions } from "@/hooks/useModuleDescriptions";
 import { RecommendationCard } from "@/components/recommendations/RecommendationCard";
+import { EditDescriptionDialog } from "@/components/club/EditDescriptionDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +15,13 @@ import { useNavigate } from "react-router-dom";
 export default function JoiaIndica() {
   const { recommendations, isLoading, trackClick } = useRecommendations();
   const { categories } = useRecommendationCategories();
+  const { getDescriptionByKey, updateDescription, isLoading: isLoadingDescription } = useModuleDescriptions();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const moduleDescription = getDescriptionByKey("joia_indica");
 
   const handleCtaClick = async (recommendation: any) => {
     try {
@@ -48,23 +53,31 @@ export default function JoiaIndica() {
         <div className="flex items-center justify-center gap-3 mb-2">
           <Sparkles className="w-10 h-10 text-primary" />
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            JoIA Indica
+            {moduleDescription?.title || "JoIA Indica"}
           </h1>
           {isAdmin && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/joia-indica/admin")}
-              className="ml-4"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Admin
-            </Button>
+            <div className="flex gap-2 ml-4">
+              {moduleDescription && (
+                <EditDescriptionDialog
+                  id={moduleDescription.id}
+                  currentTitle={moduleDescription.title}
+                  currentDescription={moduleDescription.description}
+                  onSave={(id, title, description) => updateDescription.mutate({ id, title, description })}
+                />
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/joia-indica/admin")}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            </div>
           )}
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Tudo que um(a) empreendedor(a) precisa — em um só lugar.<br />
-          Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam.
+          {moduleDescription?.description || "Tudo que um(a) empreendedor(a) precisa — em um só lugar. Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam."}
         </p>
       </div>
 
