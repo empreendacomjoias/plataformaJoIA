@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Plus, Edit, Trash2, Eye, EyeOff, BarChart3, FolderPlus } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, BarChart3, FolderPlus, Upload } from "lucide-react";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useRecommendationCategories } from "@/hooks/useRecommendationCategories";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function JoiaIndicaAdmin() {
   const { recommendations, createRecommendation, updateRecommendation, deleteRecommendation } = useRecommendations();
   const { categories, createCategory, updateCategory, deleteCategory } = useRecommendationCategories();
+  const { uploadImage, uploading } = useImageUpload();
   
   const [showRecommendationDialog, setShowRecommendationDialog] = useState(false);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
@@ -116,6 +118,16 @@ export default function JoiaIndicaAdmin() {
       color: cat.color,
     });
     setShowCategoryDialog(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const imageUrl = await uploadImage(file);
+    if (imageUrl) {
+      setFormData({ ...formData, image_url: imageUrl });
+    }
   };
 
   const resetForm = () => {
@@ -267,15 +279,58 @@ export default function JoiaIndicaAdmin() {
                   </p>
                 </div>
 
-                <div>
-                  <Label htmlFor="image_url">URL da Imagem/Logo</Label>
-                  <Input
-                    id="image_url"
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                    placeholder="https://exemplo.com/imagem.jpg"
-                  />
+                <div className="space-y-3">
+                  <Label>Imagem/Logo</Label>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="image-file"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById("image-file")?.click()}
+                        disabled={uploading}
+                        className="w-full"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {uploading ? "Enviando..." : "Enviar do Computador"}
+                      </Button>
+                    </div>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <span className="text-muted-foreground text-sm">ou</span>
+                      </div>
+                      <Input
+                        id="image_url"
+                        type="url"
+                        value={formData.image_url}
+                        onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                        placeholder="Cole uma URL da imagem"
+                        className="pl-12"
+                      />
+                    </div>
+                  </div>
+                  
+                  {formData.image_url && (
+                    <div className="mt-2">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-32 h-32 object-cover rounded border"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
