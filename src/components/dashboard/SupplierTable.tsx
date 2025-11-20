@@ -46,31 +46,31 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate }: SupplierT
         <table className="w-full">
           <thead className="bg-secondary/50 backdrop-blur-sm border-b border-border">
             <tr>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground w-14">
+              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground w-10 sm:w-14">
                 ❤️
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Nome do Fornecedor
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="hidden md:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Tipo
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="hidden lg:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Categorias
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="hidden sm:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Região
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="hidden xl:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Pedido Mínimo
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="hidden md:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Instagram
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground">
+              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                 Avaliação
               </th>
-              <th className="p-4 text-left text-sm font-semibold text-muted-foreground w-14">
+              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground w-10 sm:w-14">
                 Ações
               </th>
             </tr>

@@ -51,7 +51,7 @@ const App = () => (
               element={
                 <div className="flex min-h-screen w-full bg-background">
                   <Sidebar />
-                  <main className="flex-1 overflow-auto">
+                  <main className="flex-1 overflow-auto pt-16 lg:pt-0">
                     <Routes>
                       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                       <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
