@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useClubMembers } from "@/hooks/useClubMembers";
+import { useModuleDescriptions } from "@/hooks/useModuleDescriptions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +9,17 @@ import { Copy, Instagram, Search, Shield, Sparkles, Gem } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { EditDescriptionDialog } from "@/components/club/EditDescriptionDialog";
 
 export default function ClubJoia() {
   const { members, isLoading } = useClubMembers();
+  const { getDescriptionByKey, updateDescription, isLoading: isLoadingDescription } = useModuleDescriptions();
   const { toast } = useToast();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const moduleDescription = getDescriptionByKey("club_joia");
 
   const filteredMembers = members.filter((member) =>
     member.is_active &&
@@ -48,7 +53,7 @@ export default function ClubJoia() {
     return `https://www.instagram.com/${username}`;
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingDescription) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Carregando...</p>
@@ -61,21 +66,30 @@ export default function ClubJoia() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Gem className="w-10 h-10 text-primary" />
-              <h1 className="text-3xl font-bold">Club JoIA</h1>
+              <h1 className="text-3xl font-bold">{moduleDescription?.title || "Club JoIA"}</h1>
             </div>
             <p className="text-muted-foreground max-w-2xl">
-              Tudo que um(a) empreendedor(a) precisa — em um só lugar.
-              Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam.
+              {moduleDescription?.description || "Tudo que um(a) empreendedor(a) precisa — em um só lugar. Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam."}
             </p>
           </div>
           {isAdmin && (
-            <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2">
-              <Shield className="w-4 h-4" />
-              Admin
-            </Button>
+            <div className="flex gap-2">
+              {moduleDescription && (
+                <EditDescriptionDialog
+                  id={moduleDescription.id}
+                  currentTitle={moduleDescription.title}
+                  currentDescription={moduleDescription.description}
+                  onSave={(id, title, description) => updateDescription.mutate({ id, title, description })}
+                />
+              )}
+              <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2">
+                <Shield className="w-4 h-4" />
+                Admin
+              </Button>
+            </div>
           )}
         </div>
 
