@@ -8,17 +8,25 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const authSchema = z.object({
+const signupSchema = z.object({
   email: z.string().email("Email inválido").max(255),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(100),
-  fullName: z.string().min(2, "Nome deve ter no mínimo 2 caracteres").max(100).optional(),
+  fullName: z.string().min(2, "Nome deve ter no mínimo 2 caracteres").max(100),
+  phone: z.string().min(10, "Celular deve ter no mínimo 10 dígitos").max(15),
+  cpf: z.string().length(11, "CPF deve ter 11 dígitos"),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Email inválido").max(255),
+  cpfLast4: z.string().length(4, "Digite os últimos 4 dígitos do CPF"),
 });
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [cpfLast4, setCpfLast4] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -27,22 +35,18 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Validate input
-      const validationData = isLogin 
-        ? { email, password }
-        : { email, password, fullName };
-      
-      authSchema.parse(validationData);
-
       if (isLogin) {
+        // Validate login data
+        loginSchema.parse({ email, cpfLast4 });
+
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
-          password,
+          password: cpfLast4,
         });
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Email ou senha incorretos");
+            toast.error("Email ou últimos 4 dígitos do CPF incorretos");
           } else {
             toast.error(error.message);
           }
@@ -52,6 +56,11 @@ export default function Auth() {
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
+        // Validate signup data
+        signupSchema.parse({ email, fullName, phone, cpf });
+
+        // Use last 4 digits of CPF as password
+        const password = cpf.slice(-4);
         const redirectUrl = `${window.location.origin}/`;
         
         const { error } = await supabase.auth.signUp({
@@ -61,6 +70,8 @@ export default function Auth() {
             emailRedirectTo: redirectUrl,
             data: {
               full_name: fullName.trim(),
+              phone: phone.trim(),
+              cpf: cpf.trim(),
             },
           },
         });
@@ -74,8 +85,9 @@ export default function Auth() {
           return;
         }
 
-        toast.success("Cadastro realizado! Você já pode fazer login.");
+        toast.success("Cadastro realizado! Use os últimos 4 dígitos do CPF para fazer login.");
         setIsLogin(true);
+        setCpfLast4(password);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -105,18 +117,46 @@ export default function Auth() {
 
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nome Completo</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="Seu nome"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required={!isLogin}
-                maxLength={100}
-              />
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Nome Completo</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Seu nome"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  maxLength={100}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Celular</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  required
+                  maxLength={15}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cpf">CPF (apenas números)</Label>
+                <Input
+                  id="cpf"
+                  type="text"
+                  placeholder="00000000000"
+                  value={cpf}
+                  onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))}
+                  required
+                  maxLength={11}
+                />
+              </div>
+            </>
           )}
 
           <div className="space-y-2">
@@ -132,19 +172,20 @@ export default function Auth() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              maxLength={100}
-            />
-          </div>
+          {isLogin && (
+            <div className="space-y-2">
+              <Label htmlFor="cpfLast4">Últimos 4 dígitos do CPF</Label>
+              <Input
+                id="cpfLast4"
+                type="text"
+                placeholder="0000"
+                value={cpfLast4}
+                onChange={(e) => setCpfLast4(e.target.value.replace(/\D/g, ''))}
+                required
+                maxLength={4}
+              />
+            </div>
+          )}
 
           <Button
             type="submit"
