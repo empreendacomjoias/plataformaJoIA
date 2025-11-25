@@ -17,7 +17,7 @@ const signupSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido").max(255),
-  cpfLast4: z.string().length(4, "Digite os últimos 4 dígitos do CPF"),
+  cpfLast6: z.string().length(6, "Digite os últimos 6 dígitos do CPF"),
 });
 
 export default function Auth() {
@@ -26,7 +26,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [cpf, setCpf] = useState("");
-  const [cpfLast4, setCpfLast4] = useState("");
+  const [cpfLast6, setCpfLast6] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -37,16 +37,16 @@ export default function Auth() {
     try {
       if (isLogin) {
         // Validate login data
-        loginSchema.parse({ email, cpfLast4 });
+        loginSchema.parse({ email, cpfLast6 });
 
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
-          password: cpfLast4,
+          password: cpfLast6,
         });
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Email ou últimos 4 dígitos do CPF incorretos");
+            toast.error("Email ou últimos 6 dígitos do CPF incorretos");
           } else {
             toast.error(error.message);
           }
@@ -59,8 +59,8 @@ export default function Auth() {
         // Validate signup data
         signupSchema.parse({ email, fullName, phone, cpf });
 
-        // Use last 4 digits of CPF as password
-        const password = cpf.slice(-4);
+        // Use last 6 digits of CPF as password
+        const password = cpf.slice(-6);
         const redirectUrl = `${window.location.origin}/`;
         
         const { error } = await supabase.auth.signUp({
@@ -85,9 +85,9 @@ export default function Auth() {
           return;
         }
 
-        toast.success("Cadastro realizado! Use os últimos 4 dígitos do CPF para fazer login.");
+        toast.success("Cadastro realizado! Use os últimos 6 dígitos do CPF para fazer login.");
         setIsLogin(true);
-        setCpfLast4(password);
+        setCpfLast6(password);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -174,15 +174,15 @@ export default function Auth() {
 
           {isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="cpfLast4">Últimos 4 dígitos do CPF</Label>
+              <Label htmlFor="cpfLast6">Últimos 6 dígitos do CPF</Label>
               <Input
-                id="cpfLast4"
+                id="cpfLast6"
                 type="text"
-                placeholder="0000"
-                value={cpfLast4}
-                onChange={(e) => setCpfLast4(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                value={cpfLast6}
+                onChange={(e) => setCpfLast6(e.target.value.replace(/\D/g, ''))}
                 required
-                maxLength={4}
+                maxLength={6}
               />
             </div>
           )}
