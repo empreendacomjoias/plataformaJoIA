@@ -156,7 +156,7 @@ export default function ClubJoia() {
                     <Button
                       variant="outline"
                       className="w-full gap-2"
-                      onClick={() => window.open(getInstagramUrl(member.supplier?.instagram || ''), '_blank')}
+                      onClick={() => { window.location.href = getInstagramUrl(member.supplier?.instagram || '');}}
                     >
                       <Instagram className="w-4 h-4" />
                       Acessar Fornecedor
