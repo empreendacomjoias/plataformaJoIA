@@ -4,8 +4,8 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  // IMPORTANTE para GitHub Pages
-  base: "/plataformaJoIA/",
+  // ⬇️ Base dinâmica para Lovable (dev) e GitHub Pages (prod)
+  base: mode === "production" ? "/plataformaJoIA/" : "/",
 
   server: {
     host: "::",
@@ -23,9 +23,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
-  // Garantir que o build funcione bem no Pages
   build: {
     outDir: "dist",
     emptyOutDir: true,
   },
 }));
+
