@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { NotificationCenter } from "@/components/layout/NotificationCenter";
 
 const menuItems = [
   { icon: List, label: "Lista de Fornecedores", path: "/" },
@@ -25,20 +26,23 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center px-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </Button>
-        <div className="flex items-center gap-2 ml-4">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-xl">💎</span>
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center px-4 justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <span className="text-xl">💎</span>
+            </div>
+            <h1 className="font-semibold">Prata 925</h1>
           </div>
-          <h1 className="font-semibold">Prata 925</h1>
         </div>
+        <NotificationCenter />
       </div>
 
       {/* Mobile Overlay */}
@@ -56,14 +60,17 @@ export function Sidebar() {
       )}>
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-2xl">💎</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <span className="text-2xl">💎</span>
+            </div>
+            <div>
+              <h1 className="font-semibold text-lg">Prata 925</h1>
+              <p className="text-xs text-muted-foreground">Dashboard</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-semibold text-lg">Prata 925</h1>
-            <p className="text-xs text-muted-foreground">Dashboard</p>
-          </div>
+          <NotificationCenter />
         </div>
       </div>
 
