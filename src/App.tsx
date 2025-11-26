@@ -17,14 +17,25 @@ import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
-function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
+function ProtectedRoute({
+  children,
+  adminOnly = false,
+}: {
+  children: React.ReactNode;
+  adminOnly?: boolean;
+}) {
   const { user, isAdmin, loading } = useAuth();
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Carregando...
+      </div>
+    );
   }
 
   if (!user) {
+    // ✔ HashRouter -> navegar para "#/auth"
     return <Navigate to="/auth" replace />;
   }
 
@@ -42,30 +53,105 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      
-      {/* 🚀 ALTERADO PARA HashRouter (compatível com GitHub Pages) */}
+
+      {/* 🚀 USANDO HashRouter (obrigatório no GitHub Pages) */}
       <HashRouter>
         <AuthProvider>
           <Routes>
+            {/* 🔐 Página de autenticação */}
             <Route path="/auth" element={<Auth />} />
 
+            {/* Layout principal */}
             <Route
               path="/*"
               element={
                 <div className="flex min-h-screen w-full bg-background">
                   <Sidebar />
-                  
+
                   <main className="flex-1 overflow-auto pt-16 lg:pt-0">
                     <Routes>
-                      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                      <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-                      <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
-                      <Route path="/club-joia" element={<ProtectedRoute><ClubJoia /></ProtectedRoute>} />
-                      <Route path="/club-joia/admin" element={<ProtectedRoute adminOnly><ClubJoiaAdmin /></ProtectedRoute>} />
-                      <Route path="/joia-indica" element={<ProtectedRoute><JoiaIndica /></ProtectedRoute>} />
-                      <Route path="/joia-indica/admin" element={<ProtectedRoute adminOnly><JoiaIndicaAdmin /></ProtectedRoute>} />
-                      <Route path="/adicionar" element={<ProtectedRoute adminOnly><AddSupplier /></ProtectedRoute>} />
-                      <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                      <Route
+                        path="/"
+                        element={
+                          <ProtectedRoute>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/favoritos"
+                        element={
+                          <ProtectedRoute>
+                            <Favorites />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/ranking"
+                        element={
+                          <ProtectedRoute>
+                            <Ranking />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/club-joia"
+                        element={
+                          <ProtectedRoute>
+                            <ClubJoia />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/club-joia/admin"
+                        element={
+                          <ProtectedRoute adminOnly>
+                            <ClubJoiaAdmin />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/joia-indica"
+                        element={
+                          <ProtectedRoute>
+                            <JoiaIndica />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/joia-indica/admin"
+                        element={
+                          <ProtectedRoute adminOnly>
+                            <JoiaIndicaAdmin />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/adicionar"
+                        element={
+                          <ProtectedRoute adminOnly>
+                            <AddSupplier />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/configuracoes"
+                        element={
+                          <ProtectedRoute>
+                            <Settings />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      {/* 404 */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </main>
