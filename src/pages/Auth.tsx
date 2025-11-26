@@ -36,7 +36,6 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        // Validate login data
         loginSchema.parse({ email, cpfLast6 });
 
         const { error } = await supabase.auth.signInWithPassword({
@@ -54,15 +53,15 @@ export default function Auth() {
         }
 
         toast.success("Login realizado com sucesso!");
+
+        // ✔ HashRouter converte para /#/ automaticamente
         navigate("/");
       } else {
-        // Validate signup data
         signupSchema.parse({ email, fullName, phone, cpf });
 
-        // Use first 6 digits of CPF as password
         const password = cpf.slice(0, 6);
         const redirectUrl = `${window.location.origin}/`;
-        
+
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -138,7 +137,7 @@ export default function Auth() {
                   type="tel"
                   placeholder="(00) 00000-0000"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                   required
                   maxLength={15}
                 />
@@ -151,7 +150,7 @@ export default function Auth() {
                   type="text"
                   placeholder="00000000000"
                   value={cpf}
-                  onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setCpf(e.target.value.replace(/\D/g, ""))}
                   required
                   maxLength={11}
                 />
@@ -180,18 +179,14 @@ export default function Auth() {
                 type="text"
                 placeholder="000000"
                 value={cpfLast6}
-                onChange={(e) => setCpfLast6(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => setCpfLast6(e.target.value.replace(/\D/g, ""))}
                 required
                 maxLength={6}
               />
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}
           </Button>
         </form>
