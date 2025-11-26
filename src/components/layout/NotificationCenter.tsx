@@ -13,16 +13,27 @@ import { useNotifications } from "@/hooks/useNotifications";
 export function NotificationCenter() {
   const { activeNotifications } = useNotifications();
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  const [viewedIds, setViewedIds] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
 
-  // Load dismissed IDs from localStorage
+  // Load dismissed and viewed IDs from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("dismissedNotifications");
-    if (stored) {
+    const storedDismissed = localStorage.getItem("dismissedNotifications");
+    const storedViewed = localStorage.getItem("viewedNotifications");
+    
+    if (storedDismissed) {
       try {
-        setDismissedIds(JSON.parse(stored));
+        setDismissedIds(JSON.parse(storedDismissed));
       } catch {
         setDismissedIds([]);
+      }
+    }
+    
+    if (storedViewed) {
+      try {
+        setViewedIds(JSON.parse(storedViewed));
+      } catch {
+        setViewedIds([]);
       }
     }
   }, []);
@@ -31,14 +42,30 @@ export function NotificationCenter() {
     (notification) => !dismissedIds.includes(notification.id)
   );
 
+  const unviewedCount = visibleNotifications.filter(
+    (notification) => !viewedIds.includes(notification.id)
+  ).length;
+
   const dismissNotification = (id: string) => {
     const newDismissedIds = [...dismissedIds, id];
     setDismissedIds(newDismissedIds);
     localStorage.setItem("dismissedNotifications", JSON.stringify(newDismissedIds));
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    
+    // Mark all visible notifications as viewed when opening
+    if (newOpen && visibleNotifications.length > 0) {
+      const allVisibleIds = visibleNotifications.map(n => n.id);
+      const newViewedIds = [...new Set([...viewedIds, ...allVisibleIds])];
+      setViewedIds(newViewedIds);
+      localStorage.setItem("viewedNotifications", JSON.stringify(newViewedIds));
+    }
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -47,12 +74,12 @@ export function NotificationCenter() {
           aria-label="Notificações"
         >
           <Bell className="h-5 w-5" />
-          {visibleNotifications.length > 0 && (
+          {unviewedCount > 0 && (
             <Badge
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
               variant="destructive"
             >
-              {visibleNotifications.length}
+              {unviewedCount}
             </Badge>
           )}
         </Button>
