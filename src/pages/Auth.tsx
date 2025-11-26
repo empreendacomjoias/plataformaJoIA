@@ -17,7 +17,7 @@ const signupSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido").max(255),
-  cpfLast6: z.string().length(6, "Digite os últimos 6 dígitos do CPF"),
+  cpfLast6: z.string().length(6, "Digite os primeiros 6 dígitos do CPF"),
 });
 
 export default function Auth() {
@@ -46,7 +46,7 @@ export default function Auth() {
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Email ou últimos 6 dígitos do CPF incorretos");
+            toast.error("Email ou primeiros 6 dígitos do CPF incorretos");
           } else {
             toast.error(error.message);
           }
@@ -59,8 +59,8 @@ export default function Auth() {
         // Validate signup data
         signupSchema.parse({ email, fullName, phone, cpf });
 
-        // Use last 6 digits of CPF as password
-        const password = cpf.slice(-6);
+        // Use first 6 digits of CPF as password
+        const password = cpf.slice(0, 6);
         const redirectUrl = `${window.location.origin}/`;
         
         const { error } = await supabase.auth.signUp({
@@ -85,7 +85,7 @@ export default function Auth() {
           return;
         }
 
-        toast.success("Cadastro realizado! Use os últimos 6 dígitos do CPF para fazer login.");
+        toast.success("Cadastro realizado! Use os primeiros 6 dígitos do CPF para fazer login.");
         setIsLogin(true);
         setCpfLast6(password);
       }
@@ -174,7 +174,7 @@ export default function Auth() {
 
           {isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="cpfLast6">Últimos 6 dígitos do CPF</Label>
+              <Label htmlFor="cpfLast6">Primeiros 6 dígitos do CPF</Label>
               <Input
                 id="cpfLast6"
                 type="text"
