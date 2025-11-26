@@ -5,14 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Bell, Plus, Trash2 } from "lucide-react";
-import { useNotifications } from "@/hooks/useNotifications";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Bell, Plus, Trash2, Pencil } from "lucide-react";
+import { useNotifications, Notification } from "@/hooks/useNotifications";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 export default function NotificationsAdmin() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
@@ -20,11 +23,26 @@ export default function NotificationsAdmin() {
     notifications,
     isLoading,
     createNotification,
+    updateNotification,
     toggleNotificationStatus,
     deleteNotification,
   } = useNotifications();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const openEditDialog = (notification: Notification) => {
+    setEditingNotification(notification);
+    setTitle(notification.title);
+    setMessage(notification.message);
+    setIsEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setEditingNotification(null);
+    setTitle("");
+    setMessage("");
+    setIsEditDialogOpen(false);
+  };
+
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!title.trim() || !message.trim()) {
@@ -37,44 +55,61 @@ export default function NotificationsAdmin() {
         onSuccess: () => {
           setTitle("");
           setMessage("");
-          setIsDialogOpen(false);
+          setIsCreateDialogOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title.trim() || !message.trim() || !editingNotification) {
+      return;
+    }
+
+    updateNotification.mutate(
+      { id: editingNotification.id, title, message },
+      {
+        onSuccess: () => {
+          closeEditDialog();
         },
       }
     );
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="container mx-auto p-3 sm:p-6 max-w-7xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Bell className="h-8 w-8" />
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            <Bell className="h-6 w-6 sm:h-8 sm:w-8" />
             Gerenciar Notificações
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
             Envie notificações para todos os usuários da plataforma
           </p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Nova Notificação
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Criar Nova Notificação</DialogTitle>
               <DialogDescription>
                 Esta notificação será exibida para todos os usuários
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <Label htmlFor="title">Título</Label>
+                <Label htmlFor="create-title">Título</Label>
                 <Input
-                  id="title"
+                  id="create-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Digite o título da notificação"
@@ -82,9 +117,9 @@ export default function NotificationsAdmin() {
                 />
               </div>
               <div>
-                <Label htmlFor="message">Mensagem</Label>
+                <Label htmlFor="create-message">Mensagem</Label>
                 <Textarea
-                  id="message"
+                  id="create-message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Digite a mensagem da notificação"
@@ -104,6 +139,58 @@ export default function NotificationsAdmin() {
         </Dialog>
       </div>
 
+      {/* Dialog de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => !open && closeEditDialog()}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Notificação</DialogTitle>
+            <DialogDescription>
+              Atualize o título e a mensagem da notificação
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Título</Label>
+              <Input
+                id="edit-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Digite o título da notificação"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-message">Mensagem</Label>
+              <Textarea
+                id="edit-message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Digite a mensagem da notificação"
+                rows={4}
+                required
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={closeEditDialog}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1"
+                disabled={updateNotification.isPending}
+              >
+                {updateNotification.isPending ? "Salvando..." : "Salvar"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader>
           <CardTitle>Notificações Enviadas</CardTitle>
@@ -119,53 +206,159 @@ export default function NotificationsAdmin() {
               Nenhuma notificação criada ainda
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Mensagem</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop View - Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-4 font-medium">Título</th>
+                      <th className="text-left p-4 font-medium">Mensagem</th>
+                      <th className="text-left p-4 font-medium">Data</th>
+                      <th className="text-left p-4 font-medium">Status</th>
+                      <th className="text-right p-4 font-medium">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notifications.map((notification) => (
+                      <tr key={notification.id} className="border-b">
+                        <td className="p-4 font-medium">{notification.title}</td>
+                        <td className="p-4 max-w-md truncate">{notification.message}</td>
+                        <td className="p-4 text-sm text-muted-foreground">
+                          {format(new Date(notification.created_at), "dd/MM/yyyy HH:mm")}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={notification.is_active}
+                              onCheckedChange={(checked) =>
+                                toggleNotificationStatus.mutate({
+                                  id: notification.id,
+                                  is_active: checked,
+                                })
+                              }
+                            />
+                            <span className="text-sm">
+                              {notification.is_active ? "Ativa" : "Inativa"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditDialog(notification)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir esta notificação? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteNotification.mutate(notification.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Excluir
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile View - Cards */}
+              <div className="md:hidden space-y-4">
                 {notifications.map((notification) => (
-                  <TableRow key={notification.id}>
-                    <TableCell className="font-medium">{notification.title}</TableCell>
-                    <TableCell className="max-w-md truncate">{notification.message}</TableCell>
-                    <TableCell>
-                      {format(new Date(notification.created_at), "dd/MM/yyyy HH:mm")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={notification.is_active}
-                          onCheckedChange={(checked) =>
-                            toggleNotificationStatus.mutate({
-                              id: notification.id,
-                              is_active: checked,
-                            })
-                          }
-                        />
-                        <span className="text-sm">
+                  <Card key={notification.id}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <CardTitle className="text-base">{notification.title}</CardTitle>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(notification.created_at), "dd/MM/yyyy HH:mm")}
+                          </p>
+                        </div>
+                        <Badge variant={notification.is_active ? "default" : "secondary"}>
                           {notification.is_active ? "Ativa" : "Inativa"}
-                        </span>
+                        </Badge>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteNotification.mutate(notification.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="text-sm text-muted-foreground">{notification.message}</p>
+                      
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={notification.is_active}
+                            onCheckedChange={(checked) =>
+                              toggleNotificationStatus.mutate({
+                                id: notification.id,
+                                is_active: checked,
+                              })
+                            }
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {notification.is_active ? "Ativa" : "Inativa"}
+                          </span>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDialog(notification)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir esta notificação? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteNotification.mutate(notification.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
