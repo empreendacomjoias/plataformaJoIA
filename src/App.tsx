@@ -17,6 +17,7 @@ import AddSupplier from "./pages/AddSupplier";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import NotificationsAdmin from "./pages/NotificationsAdmin";
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, isAdmin, loading } = useAuth();
@@ -67,6 +68,7 @@ const App = () => (
                       <Route path="joia-indica" element={<ProtectedRoute><JoiaIndica /></ProtectedRoute>} />
                       <Route path="joia-indica/admin" element={<ProtectedRoute adminOnly><JoiaIndicaAdmin /></ProtectedRoute>} />
                       <Route path="adicionar" element={<ProtectedRoute adminOnly><AddSupplier /></ProtectedRoute>} />
+                      <Route path="notificacoes" element={<ProtectedRoute adminOnly><NotificationsAdmin /></ProtectedRoute>} />
                       <Route path="configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                       <Route path="*" element={<NotFound />} />
