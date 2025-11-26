@@ -42,7 +42,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/plataformaJoIA/">
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
