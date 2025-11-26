@@ -66,11 +66,10 @@ export function Sidebar() {
               <span className="text-2xl">💎</span>
             </div>
             <div>
-              <h1 className="font-semibold text-lg">Prata 925</h1>
-              <p className="text-xs text-muted-foreground">Dashboard</p>
+              <h1 className="font-semibold text-lg">JoIA</h1>
+              <p className="text-xs text-muted-foreground">Sua Plataforma Inteligente</p>
             </div>
           </div>
-          <NotificationCenter />
         </div>
       </div>
 
