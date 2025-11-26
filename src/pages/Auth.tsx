@@ -107,7 +107,7 @@ export default function Auth() {
             <span className="text-3xl">💎</span>
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Prata 925
+            JoIA: Sua Plataforma Inteligente
           </h1>
           <p className="text-muted-foreground mt-2">
             {isLogin ? "Faça login na sua conta" : "Crie sua conta"}
