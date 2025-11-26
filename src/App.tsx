@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Sidebar } from "./components/layout/Sidebar";
 import Dashboard from "./pages/Dashboard";
@@ -42,15 +42,19 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter basename="/plataformaJoIA/">
+      
+      {/* 🚀 ALTERADO PARA HashRouter (compatível com GitHub Pages) */}
+      <HashRouter>
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+
             <Route
               path="/*"
               element={
                 <div className="flex min-h-screen w-full bg-background">
                   <Sidebar />
+                  
                   <main className="flex-1 overflow-auto pt-16 lg:pt-0">
                     <Routes>
                       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -70,7 +74,7 @@ const App = () => (
             />
           </Routes>
         </AuthProvider>
-      </BrowserRouter>
+      </HashRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
