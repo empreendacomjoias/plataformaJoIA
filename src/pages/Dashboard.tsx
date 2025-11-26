@@ -5,6 +5,7 @@ import { SupplierTable } from "@/components/dashboard/SupplierTable";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRatings } from "@/hooks/useRatings";
+import { NotificationBanner } from "@/components/layout/NotificationBanner";
 
 export default function Dashboard() {
   const { suppliers, isLoading } = useSuppliers();
@@ -38,6 +39,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
+      <NotificationBanner />
       <TopRanking suppliers={suppliers} />
       <FilterBar 
         searchQuery={searchQuery} 

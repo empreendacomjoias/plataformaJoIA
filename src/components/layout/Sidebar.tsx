@@ -1,4 +1,4 @@
-import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Menu, X } from "lucide-react";
+import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Menu, X, Bell } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,8 @@ const menuItems = [
   { icon: Trophy, label: "Ranking", path: "/ranking" },
   { icon: Gem, label: "Club JoIA", path: "/club-joia" },
   { icon: Sparkles, label: "JoIA Indica", path: "/joia-indica" },
-  { icon: Plus, label: "Adicionar Fornecedor", path: "/adicionar" },
+  { icon: Plus, label: "Adicionar Fornecedor", path: "/adicionar", adminOnly: true },
+  { icon: Bell, label: "Notificações", path: "/notificacoes", adminOnly: true },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 
@@ -68,7 +69,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
-        {menuItems.filter(item => item.path !== "/adicionar" || isAdmin).map((item) => (
+        {menuItems.filter(item => !item.adminOnly || isAdmin).map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
