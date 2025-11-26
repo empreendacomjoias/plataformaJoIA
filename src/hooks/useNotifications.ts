@@ -89,6 +89,26 @@ export const useNotifications = () => {
     },
   });
 
+  const updateNotification = useMutation({
+    mutationFn: async ({ id, title, message }: { id: string; title: string; message: string }) => {
+      const { error } = await supabase
+        .from("notifications")
+        .update({ title, message })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["active-notifications"] });
+      toast.success("Notificação atualizada!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao atualizar notificação");
+      console.error(error);
+    },
+  });
+
   const deleteNotification = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -114,6 +134,7 @@ export const useNotifications = () => {
     activeNotifications,
     isLoading,
     createNotification,
+    updateNotification,
     toggleNotificationStatus,
     deleteNotification,
   };
