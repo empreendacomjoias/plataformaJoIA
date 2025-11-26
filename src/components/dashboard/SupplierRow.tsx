@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { EditSupplierDialog } from "./EditSupplierDialog";
 import { AddToClubDialog } from "./AddToClubDialog";
+import { SupplierDetailsDrawer } from "./SupplierDetailsDrawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +65,7 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddToClubDialog, setShowAddToClubDialog] = useState(false);
+  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
   const [isInfoHidden, setIsInfoHidden] = useState(false);
   
   const shouldHide = hideAll || isInfoHidden;
@@ -117,9 +119,15 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
 
       {/* Name */}
       <td className="p-2 sm:p-4">
-        <div className={cn("font-semibold text-sm sm:text-base", shouldHide && "blur-sm select-none")}>
+        <button
+          onClick={() => setShowDetailsDrawer(true)}
+          className={cn(
+            "font-semibold text-sm sm:text-base text-left md:pointer-events-none",
+            shouldHide && "blur-sm select-none"
+          )}
+        >
           {supplier.name}
-        </div>
+        </button>
       </td>
 
       {/* Type */}
@@ -262,6 +270,13 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
       supplier={supplier}
       open={showAddToClubDialog}
       onOpenChange={setShowAddToClubDialog}
+    />
+
+    <SupplierDetailsDrawer
+      supplier={supplier}
+      open={showDetailsDrawer}
+      onOpenChange={setShowDetailsDrawer}
+      onRate={(rating) => onRate(supplier.id, rating)}
     />
     </>
   );
