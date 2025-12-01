@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Instagram, Search, Shield, Sparkles, Gem } from "lucide-react";
+import { Copy, Instagram, Search, Shield, Sparkles, Gem, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ export default function ClubJoia() {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [hideAll, setHideAll] = useState(false);
 
   const moduleDescription = getDescriptionByKey("club_joia");
 
@@ -76,7 +77,16 @@ export default function ClubJoia() {
             </p>
           </div>
           {isAdmin && (
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHideAll(!hideAll)}
+                className="gap-2"
+              >
+                {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                {hideAll ? "Mostrar" : "Ocultar"}
+              </Button>
               {moduleDescription && (
                 <EditDescriptionDialog
                   id={moduleDescription.id}
@@ -116,7 +126,9 @@ export default function ClubJoia() {
                 <Card key={member.id} className="p-6 space-y-4 border-primary/50 bg-gradient-to-br from-primary/5 to-accent/5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-lg">{member.supplier?.name}</h3>
+                      <h3 className={`font-semibold text-lg ${hideAll ? "blur-sm select-none" : ""}`}>
+                        {member.supplier?.name}
+                      </h3>
                       <div className="flex gap-2 mt-2 flex-wrap">
                         {member.supplier?.categories.map((cat) => (
                           <Badge key={cat} variant="secondary" className="text-xs">
@@ -134,7 +146,7 @@ export default function ClubJoia() {
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">{member.benefit}</p>
                     <div className="flex items-center gap-2">
-                      <code className="flex-1 px-3 py-2 bg-secondary rounded text-sm font-mono">
+                      <code className={`flex-1 px-3 py-2 bg-secondary rounded text-sm font-mono ${hideAll ? "blur-sm select-none" : ""}`}>
                         {member.coupon_code}
                       </code>
                       <Button
@@ -176,7 +188,9 @@ export default function ClubJoia() {
               {regularMembers.map((member) => (
                 <Card key={member.id} className="p-6 space-y-4">
                   <div>
-                    <h3 className="font-semibold text-lg">{member.supplier?.name}</h3>
+                    <h3 className={`font-semibold text-lg ${hideAll ? "blur-sm select-none" : ""}`}>
+                      {member.supplier?.name}
+                    </h3>
                     <div className="flex gap-2 mt-2 flex-wrap">
                       {member.supplier?.categories.map((cat) => (
                         <Badge key={cat} variant="secondary" className="text-xs">
@@ -189,7 +203,7 @@ export default function ClubJoia() {
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">{member.benefit}</p>
                     <div className="flex items-center gap-2">
-                      <code className="flex-1 px-3 py-2 bg-secondary rounded text-sm font-mono">
+                      <code className={`flex-1 px-3 py-2 bg-secondary rounded text-sm font-mono ${hideAll ? "blur-sm select-none" : ""}`}>
                         {member.coupon_code}
                       </code>
                       <Button
