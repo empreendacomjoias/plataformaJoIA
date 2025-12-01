@@ -30,6 +30,128 @@ interface ImportedSupplier {
   errors: string[];
 }
 
+// Mapeamento inteligente de estados brasileiros
+const stateMapping: Record<string, string> = {
+  // Nomes completos
+  "acre": "AC", "alagoas": "AL", "amapa": "AP", "amapá": "AP", "amazonas": "AM",
+  "bahia": "BA", "ceara": "CE", "ceará": "CE", "distrito federal": "DF", "brasilia": "DF", "brasília": "DF",
+  "espirito santo": "ES", "espírito santo": "ES", "goias": "GO", "goiás": "GO",
+  "maranhao": "MA", "maranhão": "MA", "mato grosso": "MT", "mato grosso do sul": "MS",
+  "minas gerais": "MG", "minas": "MG", "para": "PA", "pará": "PA", "paraiba": "PB", "paraíba": "PB",
+  "parana": "PR", "paraná": "PR", "pernambuco": "PE", "piaui": "PI", "piauí": "PI",
+  "rio de janeiro": "RJ", "rio grande do norte": "RN", "rio grande do sul": "RS",
+  "rondonia": "RO", "rondônia": "RO", "roraima": "RR", "santa catarina": "SC",
+  "sao paulo": "SP", "são paulo": "SP", "sergipe": "SE", "tocantins": "TO",
+  // Abreviações comuns
+  "ac": "AC", "al": "AL", "ap": "AP", "am": "AM", "ba": "BA", "ce": "CE", "df": "DF",
+  "es": "ES", "go": "GO", "ma": "MA", "mt": "MT", "ms": "MS", "mg": "MG", "pa": "PA",
+  "pb": "PB", "pr": "PR", "pe": "PE", "pi": "PI", "rj": "RJ", "rn": "RN", "rs": "RS",
+  "ro": "RO", "rr": "RR", "sc": "SC", "sp": "SP", "se": "SE", "to": "TO",
+  // Variações comuns
+  "rio": "RJ", "sampa": "SP", "bh": "MG", "poa": "RS", "ctba": "PR", "curitiba": "PR",
+  "belo horizonte": "MG", "porto alegre": "RS", "salvador": "BA", "recife": "PE",
+  "fortaleza": "CE", "manaus": "AM", "floripa": "SC", "florianópolis": "SC", "florianopolis": "SC",
+};
+
+// Mapeamento inteligente de tipos
+const typeMapping: Record<string, string> = {
+  "fabricante": "Fabricante", "fab": "Fabricante", "fabrica": "Fabricante", "fábrica": "Fabricante",
+  "factory": "Fabricante", "manufacturer": "Fabricante", "industria": "Fabricante", "indústria": "Fabricante",
+  "atacadista": "Atacadista", "atac": "Atacadista", "atacado": "Atacadista", "wholesale": "Atacadista",
+  "distribuidor": "Atacadista", "distribuidora": "Atacadista", "revenda": "Atacadista", "revendedor": "Atacadista",
+};
+
+// Função para normalizar região
+const normalizeRegion = (input: string): string => {
+  const cleaned = input.toLowerCase().trim();
+  
+  // Verifica mapeamento direto
+  if (stateMapping[cleaned]) {
+    return stateMapping[cleaned];
+  }
+  
+  // Tenta encontrar correspondência parcial
+  for (const [key, value] of Object.entries(stateMapping)) {
+    if (cleaned.includes(key) || key.includes(cleaned)) {
+      return value;
+    }
+  }
+  
+  // Se já tem 2 caracteres, assume que é a sigla
+  if (cleaned.length === 2) {
+    return cleaned.toUpperCase();
+  }
+  
+  return input.toUpperCase().substring(0, 2);
+};
+
+// Função para normalizar tipo
+const normalizeType = (input: string): string => {
+  const cleaned = input.toLowerCase().trim();
+  
+  if (typeMapping[cleaned]) {
+    return typeMapping[cleaned];
+  }
+  
+  // Busca parcial
+  for (const [key, value] of Object.entries(typeMapping)) {
+    if (cleaned.includes(key) || key.includes(cleaned)) {
+      return value;
+    }
+  }
+  
+  // Heurística: palavras que sugerem fabricante ou atacadista
+  if (cleaned.match(/fab|indus|produ|manufat/)) return "Fabricante";
+  if (cleaned.match(/atac|dist|revend|wholes/)) return "Atacadista";
+  
+  return input;
+};
+
+// Função para normalizar Instagram
+const normalizeInstagram = (input: string): string => {
+  let cleaned = input.trim();
+  
+  // Remove URLs completas do Instagram
+  cleaned = cleaned.replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
+  cleaned = cleaned.replace(/\/$/, "");
+  
+  // Remove @ se presente no início
+  if (cleaned.startsWith("@")) {
+    cleaned = cleaned.substring(1);
+  }
+  
+  // Remove espaços e caracteres inválidos
+  cleaned = cleaned.replace(/\s+/g, "").toLowerCase();
+  
+  // Adiciona @ no início
+  return `@${cleaned}`;
+};
+
+// Função para extrair número
+const extractNumber = (input: any): number => {
+  if (typeof input === "number") return input;
+  
+  const str = String(input);
+  // Remove símbolos de moeda, espaços e extrai números
+  const cleaned = str.replace(/[R$\s.]/g, "").replace(",", ".");
+  const num = parseFloat(cleaned);
+  
+  return isNaN(num) ? 0 : num;
+};
+
+// Função para normalizar categorias
+const normalizeCategories = (input: any): string[] => {
+  if (!input) return [];
+  
+  const str = String(input);
+  // Separa por vírgula, ponto e vírgula, ou pipe
+  return str
+    .split(/[,;|]/)
+    .map(c => c.trim())
+    .filter(Boolean)
+    .map(c => c.charAt(0).toUpperCase() + c.slice(1).toLowerCase()); // Capitaliza
+};
+
 export default function AddSupplier() {
   const { categories, createCategory, isCreating, deleteCategory, isDeleting } = useCategories();
   const queryClient = useQueryClient();
@@ -80,28 +202,48 @@ export default function AddSupplier() {
   const validateSupplier = (row: any): ImportedSupplier => {
     const errors: string[] = [];
     
-    const name = String(row["Nome"] || row["name"] || "").trim();
-    const type = String(row["Tipo"] || row["type"] || "").trim();
-    const region = String(row["Região"] || row["Estado"] || row["region"] || "").trim().toUpperCase();
-    const minOrderRaw = row["Pedido Mínimo"] || row["Pedido Minimo"] || row["minOrder"] || row["min_order"] || 0;
-    const minOrder = parseFloat(String(minOrderRaw).replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
-    const instagram = String(row["Instagram"] || row["instagram"] || "").trim();
-    const categoriesRaw = row["Categorias"] || row["categories"] || "";
-    const categoriesList = String(categoriesRaw).split(/[,;]/).map(c => c.trim()).filter(Boolean);
+    // Busca flexível de colunas (aceita variações de nome)
+    const findValue = (keys: string[]) => {
+      for (const key of keys) {
+        const found = Object.keys(row).find(k => 
+          k.toLowerCase().replace(/[_\s-]/g, "") === key.toLowerCase().replace(/[_\s-]/g, "")
+        );
+        if (found && row[found]) return row[found];
+      }
+      return "";
+    };
+    
+    const name = String(findValue(["Nome", "name", "fornecedor", "supplier", "empresa", "company"]) || "").trim();
+    
+    const typeRaw = String(findValue(["Tipo", "type", "categoria_tipo", "segmento"]) || "").trim();
+    const type = normalizeType(typeRaw);
+    
+    const regionRaw = String(findValue(["Região", "Regiao", "Estado", "region", "state", "uf", "localização", "local"]) || "").trim();
+    const region = normalizeRegion(regionRaw);
+    
+    const minOrderRaw = findValue(["Pedido Mínimo", "Pedido Minimo", "minOrder", "min_order", "minimo", "mínimo", "pedido_min", "valor_minimo"]);
+    const minOrder = extractNumber(minOrderRaw);
+    
+    const instagramRaw = String(findValue(["Instagram", "instagram", "insta", "ig", "rede_social", "social"]) || "").trim();
+    const instagram = instagramRaw ? normalizeInstagram(instagramRaw) : "";
+    
+    const categoriesRaw = findValue(["Categorias", "categories", "categoria", "category", "tags", "produtos", "products"]);
+    const categoriesList = normalizeCategories(categoriesRaw);
 
+    // Validação mais flexível com mensagens claras
     if (!name) errors.push("Nome é obrigatório");
     if (!type || (type !== "Fabricante" && type !== "Atacadista")) {
-      errors.push("Tipo deve ser 'Fabricante' ou 'Atacadista'");
+      errors.push(`Tipo "${typeRaw}" não reconhecido`);
     }
-    if (!region || region.length !== 2) errors.push("Região deve ter 2 caracteres (ex: SP)");
-    if (minOrder <= 0) errors.push("Pedido mínimo deve ser maior que 0");
-    if (!instagram) errors.push("Instagram é obrigatório");
+    if (!region || region.length !== 2) errors.push(`Região "${regionRaw}" não reconhecida`);
+    if (minOrder <= 0) errors.push("Pedido mínimo inválido");
+    if (!instagram || instagram === "@") errors.push("Instagram é obrigatório");
     if (categoriesList.length === 0) errors.push("Pelo menos uma categoria é necessária");
 
     return {
       name,
-      type,
-      region,
+      type: type || typeRaw,
+      region: region || regionRaw.toUpperCase().substring(0, 2),
       minOrder,
       instagram,
       categories: categoriesList,
