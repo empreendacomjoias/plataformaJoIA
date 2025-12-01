@@ -208,6 +208,13 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-card border-border">
+            <DropdownMenuItem 
+              onClick={() => onToggleFavorite(supplier.id)}
+              className="cursor-pointer"
+            >
+              <Heart className={cn("w-4 h-4 mr-2", supplier.isFavorite && "fill-red-500 text-red-500")} />
+              {supplier.isFavorite ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleCopyInstagram} className="cursor-pointer">
               <Copy className="w-4 h-4 mr-2" />
               Copiar Instagram
