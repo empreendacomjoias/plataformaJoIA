@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Upload, X } from "lucide-react";
+import { Plus, Upload, X, FileSpreadsheet, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,18 @@ import { toast } from "sonner";
 import { useCategories } from "@/hooks/useCategories";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import * as XLSX from "xlsx";
+
+interface ImportedSupplier {
+  name: string;
+  type: string;
+  region: string;
+  minOrder: number;
+  instagram: string;
+  categories: string[];
+  valid: boolean;
+  errors: string[];
+}
 
 export default function AddSupplier() {
   const { categories, createCategory, isCreating, deleteCategory, isDeleting } = useCategories();
@@ -26,6 +38,8 @@ export default function AddSupplier() {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [importedData, setImportedData] = useState<ImportedSupplier[]>([]);
+  const [showImportPreview, setShowImportPreview] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -59,16 +73,47 @@ export default function AddSupplier() {
   const handleDeleteCategory = (categoryName: string) => {
     if (confirm(`Tem certeza que deseja remover a categoria "${categoryName}"?`)) {
       deleteCategory(categoryName);
-      // Remove from selected if present
       setSelectedCategories(prev => prev.filter(c => c !== categoryName));
     }
+  };
+
+  const validateSupplier = (row: any): ImportedSupplier => {
+    const errors: string[] = [];
+    
+    const name = String(row["Nome"] || row["name"] || "").trim();
+    const type = String(row["Tipo"] || row["type"] || "").trim();
+    const region = String(row["Região"] || row["Estado"] || row["region"] || "").trim().toUpperCase();
+    const minOrderRaw = row["Pedido Mínimo"] || row["Pedido Minimo"] || row["minOrder"] || row["min_order"] || 0;
+    const minOrder = parseFloat(String(minOrderRaw).replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+    const instagram = String(row["Instagram"] || row["instagram"] || "").trim();
+    const categoriesRaw = row["Categorias"] || row["categories"] || "";
+    const categoriesList = String(categoriesRaw).split(/[,;]/).map(c => c.trim()).filter(Boolean);
+
+    if (!name) errors.push("Nome é obrigatório");
+    if (!type || (type !== "Fabricante" && type !== "Atacadista")) {
+      errors.push("Tipo deve ser 'Fabricante' ou 'Atacadista'");
+    }
+    if (!region || region.length !== 2) errors.push("Região deve ter 2 caracteres (ex: SP)");
+    if (minOrder <= 0) errors.push("Pedido mínimo deve ser maior que 0");
+    if (!instagram) errors.push("Instagram é obrigatório");
+    if (categoriesList.length === 0) errors.push("Pelo menos uma categoria é necessária");
+
+    return {
+      name,
+      type,
+      region,
+      minOrder,
+      instagram,
+      categories: categoriesList,
+      valid: errors.length === 0,
+      errors,
+    };
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const validTypes = [
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -83,14 +128,113 @@ export default function AddSupplier() {
     setUploading(true);
     toast.info("Processando arquivo...");
 
-    // For now, show a message that this feature is coming soon
-    setTimeout(() => {
-      setUploading(false);
-      toast.info("Funcionalidade de importação será implementada em breve!");
-    }, 1000);
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-    // Reset input
-    e.target.value = "";
+      if (jsonData.length === 0) {
+        toast.error("A planilha está vazia");
+        setUploading(false);
+        return;
+      }
+
+      const validated = jsonData.map(validateSupplier);
+      setImportedData(validated);
+      setShowImportPreview(true);
+      
+      const validCount = validated.filter(s => s.valid).length;
+      const invalidCount = validated.filter(s => !s.valid).length;
+      
+      if (invalidCount > 0) {
+        toast.warning(`${validCount} válidos, ${invalidCount} com erros`);
+      } else {
+        toast.success(`${validCount} fornecedores prontos para importar`);
+      }
+    } catch (error) {
+      console.error("Error parsing file:", error);
+      toast.error("Erro ao processar arquivo");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleImportConfirm = async () => {
+    const validSuppliers = importedData.filter(s => s.valid);
+    if (validSuppliers.length === 0) {
+      toast.error("Nenhum fornecedor válido para importar");
+      return;
+    }
+
+    setSubmitting(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const supplier of validSuppliers) {
+      try {
+        // Insert supplier
+        const { data: supplierData, error: supplierError } = await supabase
+          .from("suppliers")
+          .insert({
+            name: supplier.name,
+            type: supplier.type,
+            region: supplier.region,
+            min_order: supplier.minOrder,
+            instagram: supplier.instagram,
+          })
+          .select()
+          .single();
+
+        if (supplierError) throw supplierError;
+
+        // Create categories that don't exist
+        for (const catName of supplier.categories) {
+          if (!categories.includes(catName)) {
+            await supabase.from("categories").insert({ name: catName }).single();
+          }
+        }
+
+        // Get category IDs
+        const { data: categoryData, error: categoryError } = await supabase
+          .from("categories")
+          .select("id, name")
+          .in("name", supplier.categories);
+
+        if (categoryError) throw categoryError;
+
+        // Insert supplier-category relations
+        if (categoryData && categoryData.length > 0) {
+          const relations = categoryData.map((cat) => ({
+            supplier_id: supplierData.id,
+            category_id: cat.id,
+          }));
+
+          await supabase.from("supplier_categories").insert(relations);
+        }
+
+        successCount++;
+      } catch (error) {
+        console.error(`Error importing ${supplier.name}:`, error);
+        errorCount++;
+      }
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+    queryClient.invalidateQueries({ queryKey: ["categories"] });
+
+    if (successCount > 0) {
+      toast.success(`✨ ${successCount} fornecedor(es) importado(s) com sucesso!`);
+    }
+    if (errorCount > 0) {
+      toast.error(`${errorCount} fornecedor(es) falharam na importação`);
+    }
+
+    setImportedData([]);
+    setShowImportPreview(false);
+    setSubmitting(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,7 +253,6 @@ export default function AddSupplier() {
     setSubmitting(true);
 
     try {
-      // Insert supplier
       const { data: supplierData, error: supplierError } = await supabase
         .from("suppliers")
         .insert({
@@ -124,7 +267,6 @@ export default function AddSupplier() {
 
       if (supplierError) throw supplierError;
 
-      // Get category IDs
       const { data: categoryData, error: categoryError } = await supabase
         .from("categories")
         .select("id, name")
@@ -132,7 +274,6 @@ export default function AddSupplier() {
 
       if (categoryError) throw categoryError;
 
-      // Insert supplier-category relations
       const relations = categoryData.map((cat) => ({
         supplier_id: supplierData.id,
         category_id: cat.id,
@@ -146,10 +287,8 @@ export default function AddSupplier() {
 
       toast.success(`✨ Fornecedor ${formData.name} adicionado com sucesso!`);
       
-      // Invalidate suppliers query to refresh the list
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
 
-      // Reset form
       setFormData({
         name: "",
         type: "",
@@ -331,40 +470,136 @@ export default function AddSupplier() {
             Importar Planilha
           </h2>
 
-          <input
-            type="file"
-            id="file-upload"
-            accept=".xlsx,.csv"
-            onChange={handleFileSelect}
-            className="hidden"
-            disabled={uploading}
-          />
+          {!showImportPreview ? (
+            <>
+              <input
+                type="file"
+                id="file-upload"
+                accept=".xlsx,.csv"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={uploading}
+              />
 
-          <label
-            htmlFor="file-upload"
-            className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border/50 rounded-lg hover:border-primary/50 transition-colors cursor-pointer bg-background/30"
-          >
-            <Upload className="w-12 h-12 text-muted-foreground mb-4" />
-            <p className="text-center text-muted-foreground mb-2">
-              {uploading ? "Processando..." : "Arraste e solte sua planilha aqui"}
-            </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              ou clique para selecionar
-            </p>
-            <span className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 pointer-events-none">
-              {uploading ? "Carregando..." : "Selecionar Arquivo"}
-            </span>
-            <p className="text-xs text-muted-foreground mt-4">
-              Formatos aceitos: .xlsx, .csv
-            </p>
-          </label>
+              <label
+                htmlFor="file-upload"
+                className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border/50 rounded-lg hover:border-primary/50 transition-colors cursor-pointer bg-background/30"
+              >
+                <Upload className="w-12 h-12 text-muted-foreground mb-4" />
+                <p className="text-center text-muted-foreground mb-2">
+                  {uploading ? "Processando..." : "Arraste e solte sua planilha aqui"}
+                </p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  ou clique para selecionar
+                </p>
+                <span className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 pointer-events-none">
+                  {uploading ? "Carregando..." : "Selecionar Arquivo"}
+                </span>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Formatos aceitos: .xlsx, .csv
+                </p>
+              </label>
 
-          <div className="mt-6 p-4 bg-accent/10 border border-accent/30 rounded-lg">
-            <p className="text-sm font-medium mb-2">📋 Formato da planilha:</p>
-            <p className="text-xs text-muted-foreground">
-              Nome | Tipo | Região | Pedido Mínimo | Instagram | Categorias
-            </p>
-          </div>
+              <div className="mt-6 p-4 bg-accent/10 border border-accent/30 rounded-lg">
+                <p className="text-sm font-medium mb-2">📋 Formato da planilha:</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Colunas esperadas (cabeçalho):
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant="outline" className="text-xs">Nome</Badge>
+                  <Badge variant="outline" className="text-xs">Tipo</Badge>
+                  <Badge variant="outline" className="text-xs">Região</Badge>
+                  <Badge variant="outline" className="text-xs">Pedido Mínimo</Badge>
+                  <Badge variant="outline" className="text-xs">Instagram</Badge>
+                  <Badge variant="outline" className="text-xs">Categorias</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  💡 Tipo: "Fabricante" ou "Atacadista" | Categorias separadas por vírgula
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-primary" />
+                  <span className="font-medium">{importedData.length} fornecedor(es) encontrado(s)</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setImportedData([]);
+                    setShowImportPreview(false);
+                  }}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Cancelar
+                </Button>
+              </div>
+
+              <div className="max-h-[300px] overflow-y-auto space-y-2">
+                {importedData.map((supplier, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-3 rounded-lg border ${
+                      supplier.valid
+                        ? "bg-green-500/10 border-green-500/30"
+                        : "bg-red-500/10 border-red-500/30"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      {supplier.valid ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{supplier.name || "Sem nome"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {supplier.type} • {supplier.region} • R$ {supplier.minOrder}
+                        </p>
+                        {supplier.categories.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {supplier.categories.map((cat) => (
+                              <Badge key={cat} variant="outline" className="text-xs py-0">
+                                {cat}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        {!supplier.valid && (
+                          <p className="text-xs text-red-400 mt-1">
+                            {supplier.errors.join(", ")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setImportedData([]);
+                    setShowImportPreview(false);
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={handleImportConfirm}
+                  disabled={submitting || importedData.filter(s => s.valid).length === 0}
+                >
+                  {submitting ? "Importando..." : `Importar ${importedData.filter(s => s.valid).length} válido(s)`}
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
       </div>
     </div>
