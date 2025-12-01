@@ -1,10 +1,15 @@
-import { Trophy, Star } from "lucide-react";
+import { useState } from "react";
+import { Trophy, Star, Eye, EyeOff } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Ranking() {
   const { suppliers, isLoading } = useSuppliers();
+  const { isAdmin } = useAuth();
+  const [hideAll, setHideAll] = useState(false);
 
   const rankedSuppliers = [...suppliers].sort((a, b) => b.rating - a.rating);
   const medals = ["🏆", "🥈", "🥉"];
@@ -15,16 +20,29 @@ export default function Ranking() {
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 md:mb-6">
-        <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Ranking Completo
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Todos os fornecedores ordenados por avaliação
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+        <div className="flex items-center gap-3">
+          <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Ranking Completo
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Todos os fornecedores ordenados por avaliação
+            </p>
+          </div>
         </div>
+        {isAdmin && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setHideAll(!hideAll)}
+            className="gap-2"
+          >
+            {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {hideAll ? "Mostrar Todos" : "Ocultar Todos"}
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-3 md:gap-4">
@@ -42,13 +60,15 @@ export default function Ranking() {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold mb-1">{supplier.name}</h3>
+                <h3 className={`text-lg sm:text-xl font-bold mb-1 ${hideAll ? "blur-sm select-none" : ""}`}>
+                  {supplier.name}
+                </h3>
                 <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                   <span>{supplier.type}</span>
                   <span>•</span>
                   <span>{supplier.region}</span>
                   <span>•</span>
-                  <span className="truncate">{supplier.instagram}</span>
+                  <span className={`truncate ${hideAll ? "blur-sm select-none" : ""}`}>{supplier.instagram}</span>
                 </div>
                 <div className="flex flex-wrap gap-1 sm:gap-1.5 mt-2">
                   {supplier.categories.map((category) => (
