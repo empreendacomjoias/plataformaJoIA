@@ -75,9 +75,11 @@ function SortableRow({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    transition: transition || 'transform 200ms cubic-bezier(0.25, 1, 0.5, 1)',
+    opacity: isDragging ? 0.8 : 1,
     zIndex: isDragging ? 1000 : undefined,
+    scale: isDragging ? 1.02 : 1,
+    boxShadow: isDragging ? '0 8px 20px -4px rgba(0, 0, 0, 0.2)' : 'none',
   };
 
   return (
