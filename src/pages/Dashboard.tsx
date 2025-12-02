@@ -70,7 +70,7 @@ export default function Dashboard() {
         </Button>
       </div>
       
-      <TopRanking suppliers={suppliers} />
+      <TopRanking suppliers={suppliers} hideAll={hideAll} />
       <FilterBar 
         searchQuery={searchQuery} 
         onSearchChange={setSearchQuery}
