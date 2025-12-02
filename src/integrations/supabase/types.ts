@@ -332,6 +332,7 @@ export type Database = {
           id: string
           instagram: string
           min_order: number
+          min_order_is_pieces: boolean
           name: string
           rating: number | null
           rating_count: number | null
@@ -344,6 +345,7 @@ export type Database = {
           id?: string
           instagram: string
           min_order: number
+          min_order_is_pieces?: boolean
           name: string
           rating?: number | null
           rating_count?: number | null
@@ -356,6 +358,7 @@ export type Database = {
           id?: string
           instagram?: string
           min_order?: number
+          min_order_is_pieces?: boolean
           name?: string
           rating?: number | null
           rating_count?: number | null

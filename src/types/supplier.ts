@@ -9,6 +9,7 @@ export interface Supplier {
   categories: SupplierCategory[];
   region: string;
   minOrder: number;
+  minOrderIsPieces: boolean;
   instagram: string;
   rating: number;
   ratingCount: number;

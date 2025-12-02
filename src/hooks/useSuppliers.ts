@@ -44,6 +44,7 @@ export function useSuppliers() {
         categories: s.supplier_categories.map((sc: any) => sc.categories.name),
         region: s.region,
         minOrder: Number(s.min_order),
+        minOrderIsPieces: s.min_order_is_pieces || false,
         instagram: s.instagram,
         rating: Number(s.rating) || 0,
         ratingCount: s.rating_count || 0,
@@ -79,6 +80,7 @@ export function useSuppliers() {
       type: "Fabricante" | "Atacadista";
       region: string;
       minOrder: number;
+      minOrderIsPieces: boolean;
       instagram: string;
       categories: string[];
     }) => {
@@ -90,6 +92,7 @@ export function useSuppliers() {
           type: data.type,
           region: data.region,
           min_order: data.minOrder,
+          min_order_is_pieces: data.minOrderIsPieces,
           instagram: data.instagram,
         })
         .eq("id", data.id);

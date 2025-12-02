@@ -192,7 +192,10 @@ export function SupplierRow({
       {/* Min Order */}
       <td className="hidden xl:table-cell p-2 sm:p-4">
         <span className="text-sm font-medium">
-          R$ {supplier.minOrder.toLocaleString("pt-BR")}
+          {supplier.minOrderIsPieces 
+            ? `${supplier.minOrder.toLocaleString("pt-BR")} peças`
+            : `R$ ${supplier.minOrder.toLocaleString("pt-BR")}`
+          }
         </span>
       </td>
 
