@@ -162,6 +162,7 @@ export default function AddSupplier() {
   const [uploading, setUploading] = useState(false);
   const [importedData, setImportedData] = useState<ImportedSupplier[]>([]);
   const [showImportPreview, setShowImportPreview] = useState(false);
+  const [defaultImportCategories, setDefaultImportCategories] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -230,15 +231,15 @@ export default function AddSupplier() {
     const categoriesRaw = findValue(["Categorias", "categories", "categoria", "category", "tags", "produtos", "products"]);
     const categoriesList = normalizeCategories(categoriesRaw);
 
-    // Validação mais flexível com mensagens claras
+    // Validação mais flexível - categorias são opcionais (podem ser selecionadas depois)
     if (!name) errors.push("Nome é obrigatório");
     if (!type || (type !== "Fabricante" && type !== "Atacadista")) {
       errors.push(`Tipo "${typeRaw}" não reconhecido`);
     }
     if (!region || region.length !== 2) errors.push(`Região "${regionRaw}" não reconhecida`);
-    if (minOrder <= 0) errors.push("Pedido mínimo inválido");
+    if (minOrder < 0) errors.push("Pedido mínimo inválido");
     if (!instagram || instagram === "@") errors.push("Instagram é obrigatório");
-    if (categoriesList.length === 0) errors.push("Pelo menos uma categoria é necessária");
+    // Categorias são opcionais - podem ser definidas na preview
 
     return {
       name,
@@ -329,11 +330,23 @@ export default function AddSupplier() {
       return;
     }
 
+    // Verifica se há categorias (da planilha ou selecionadas)
+    const suppliersWithCategories = validSuppliers.map(s => ({
+      ...s,
+      categories: s.categories.length > 0 ? s.categories : defaultImportCategories
+    }));
+
+    const hasAnyWithoutCategories = suppliersWithCategories.some(s => s.categories.length === 0);
+    if (hasAnyWithoutCategories && defaultImportCategories.length === 0) {
+      toast.error("Selecione pelo menos uma categoria padrão para os fornecedores");
+      return;
+    }
+
     setSubmitting(true);
     let successCount = 0;
     let errorCount = 0;
 
-    for (const supplier of validSuppliers) {
+    for (const supplier of suppliersWithCategories) {
       try {
         // Insert supplier
         const { data: supplierData, error: supplierError } = await supabase
@@ -353,26 +366,28 @@ export default function AddSupplier() {
         // Create categories that don't exist
         for (const catName of supplier.categories) {
           if (!categories.includes(catName)) {
-            await supabase.from("categories").insert({ name: catName }).single();
+            await supabase.from("categories").insert({ name: catName }).maybeSingle();
           }
         }
 
         // Get category IDs
-        const { data: categoryData, error: categoryError } = await supabase
-          .from("categories")
-          .select("id, name")
-          .in("name", supplier.categories);
+        if (supplier.categories.length > 0) {
+          const { data: categoryData, error: categoryError } = await supabase
+            .from("categories")
+            .select("id, name")
+            .in("name", supplier.categories);
 
-        if (categoryError) throw categoryError;
+          if (categoryError) throw categoryError;
 
-        // Insert supplier-category relations
-        if (categoryData && categoryData.length > 0) {
-          const relations = categoryData.map((cat) => ({
-            supplier_id: supplierData.id,
-            category_id: cat.id,
-          }));
+          // Insert supplier-category relations
+          if (categoryData && categoryData.length > 0) {
+            const relations = categoryData.map((cat) => ({
+              supplier_id: supplierData.id,
+              category_id: cat.id,
+            }));
 
-          await supabase.from("supplier_categories").insert(relations);
+            await supabase.from("supplier_categories").insert(relations);
+          }
         }
 
         successCount++;
@@ -394,6 +409,7 @@ export default function AddSupplier() {
 
     setImportedData([]);
     setShowImportPreview(false);
+    setDefaultImportCategories([]);
     setSubmitting(false);
   };
 
@@ -691,6 +707,7 @@ export default function AddSupplier() {
                   onClick={() => {
                     setImportedData([]);
                     setShowImportPreview(false);
+                    setDefaultImportCategories([]);
                   }}
                 >
                   <X className="w-4 h-4 mr-1" />
@@ -698,8 +715,43 @@ export default function AddSupplier() {
                 </Button>
               </div>
 
-              <div className="max-h-[300px] overflow-y-auto space-y-2">
-                {importedData.map((supplier, idx) => (
+              {/* Seletor de categorias padrão */}
+              {importedData.some(s => s.categories.length === 0) && (
+                <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                  <p className="text-sm font-medium mb-2 text-amber-200">
+                    ⚠️ Sua planilha não tem a coluna "Categorias"
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Selecione as categorias padrão para todos os fornecedores:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {categories.map((category) => (
+                      <Badge
+                        key={category}
+                        variant={defaultImportCategories.includes(category) ? "default" : "outline"}
+                        className="cursor-pointer hover:scale-105 transition-transform text-xs"
+                        onClick={() => {
+                          setDefaultImportCategories(prev =>
+                            prev.includes(category)
+                              ? prev.filter(c => c !== category)
+                              : [...prev, category]
+                          );
+                        }}
+                      >
+                        {category}
+                      </Badge>
+                    ))}
+                  </div>
+                  {defaultImportCategories.length > 0 && (
+                    <p className="text-xs text-green-400 mt-2">
+                      ✓ {defaultImportCategories.length} categoria(s) selecionada(s)
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="max-h-[250px] overflow-y-auto space-y-2">
+                {importedData.slice(0, 50).map((supplier, idx) => (
                   <div
                     key={idx}
                     className={`p-3 rounded-lg border ${
@@ -739,6 +791,12 @@ export default function AddSupplier() {
                 ))}
               </div>
 
+              {importedData.length > 50 && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Mostrando 50 de {importedData.length} fornecedores
+                </p>
+              )}
+
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -746,6 +804,7 @@ export default function AddSupplier() {
                   onClick={() => {
                     setImportedData([]);
                     setShowImportPreview(false);
+                    setDefaultImportCategories([]);
                   }}
                 >
                   Cancelar
