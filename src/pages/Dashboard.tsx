@@ -6,6 +6,8 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRatings } from "@/hooks/useRatings";
 import { NotificationBanner } from "@/components/layout/NotificationBanner";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff, List } from "lucide-react";
 
 export default function Dashboard() {
   const { suppliers, isLoading } = useSuppliers();
@@ -15,6 +17,7 @@ export default function Dashboard() {
   const [regionFilter, setRegionFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+  const [hideAll, setHideAll] = useState(false);
 
   const filteredSuppliers = suppliers.filter((supplier) => {
     const query = searchQuery.toLowerCase();
@@ -42,6 +45,31 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
       <NotificationBanner />
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <List className="w-7 h-7 sm:w-8 sm:h-8 text-primary drop-shadow-[0_0_10px_rgba(167,139,250,0.6)]" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Lista de Fornecedores
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Encontre os melhores fornecedores
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setHideAll(!hideAll)}
+          className="gap-2"
+        >
+          {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          {hideAll ? "Mostrar" : "Ocultar"}
+        </Button>
+      </div>
+      
       <TopRanking suppliers={suppliers} />
       <FilterBar 
         searchQuery={searchQuery} 
@@ -62,6 +90,7 @@ export default function Dashboard() {
           }
         }}
         onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
+        hideAll={hideAll}
       />
     </div>
   );
