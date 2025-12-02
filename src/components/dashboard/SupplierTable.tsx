@@ -44,6 +44,7 @@ interface SupplierTableProps {
   onRate: (id: string, rating: number) => void;
   onReorder?: (suppliers: Supplier[]) => void;
   hideAdminControls?: boolean;
+  hideAll?: boolean;
 }
 
 interface SortableRowProps {
@@ -116,10 +117,11 @@ function SortableRow({
   );
 }
 
-export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false }: SupplierTableProps) {
+export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false, hideAll: externalHideAll }: SupplierTableProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
-  const [hideAll, setHideAll] = useState(false);
+  const [internalHideAll, setInternalHideAll] = useState(false);
+  const hideAll = externalHideAll !== undefined ? externalHideAll : internalHideAll;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -290,7 +292,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setHideAll(!hideAll)}
+                  onClick={() => setInternalHideAll(!internalHideAll)}
                   className="gap-2"
                 >
                   {hideAll ? (
