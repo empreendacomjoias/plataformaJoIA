@@ -31,12 +31,10 @@ export function TopRanking({ suppliers }: TopRankingProps) {
           {isAdmin && (
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => setHideAll(!hideAll)}
-              className="gap-2"
             >
               {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              <span className="hidden sm:inline">{hideAll ? "Mostrar" : "Ocultar"}</span>
             </Button>
           )}
         </div>

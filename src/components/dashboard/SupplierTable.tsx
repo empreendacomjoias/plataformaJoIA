@@ -291,21 +291,10 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="icon"
                   onClick={() => setInternalHideAll(!internalHideAll)}
-                  className="gap-2"
                 >
-                  {hideAll ? (
-                    <>
-                      <Eye className="w-4 h-4" />
-                      Mostrar Todos
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="w-4 h-4" />
-                      Ocultar Todos
-                    </>
-                  )}
+                  {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </Button>
               </>
             )}
