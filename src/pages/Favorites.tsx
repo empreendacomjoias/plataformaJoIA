@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRatings } from "@/hooks/useRatings";
 import { SupplierTable } from "@/components/dashboard/SupplierTable";
-import { Heart } from "lucide-react";
+import { Heart, EyeOff } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function Favorites() {
   const { suppliers, isLoading } = useSuppliers();
   const { toggleFavorite } = useFavorites();
   const { rateSupplier } = useRatings();
+  const [hideInfo, setHideInfo] = useState(false);
 
   const favoriteSuppliers = suppliers.filter((s) => s.isFavorite);
 
@@ -17,15 +21,29 @@ export default function Favorites() {
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
-      <div className="flex items-center gap-3 mb-4 md:mb-6">
-        <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Meus Favoritos
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {favoriteSuppliers.length} fornecedor(es) favorito(s)
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+        <div className="flex items-center gap-3">
+          <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Meus Favoritos
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {favoriteSuppliers.length} fornecedor(es) favorito(s)
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <EyeOff className="w-4 h-4 text-muted-foreground" />
+          <Label htmlFor="hide-info-favorites" className="text-sm text-muted-foreground cursor-pointer">
+            Privacidade
+          </Label>
+          <Switch
+            id="hide-info-favorites"
+            checked={hideInfo}
+            onCheckedChange={setHideInfo}
+          />
         </div>
       </div>
 
@@ -48,6 +66,7 @@ export default function Favorites() {
           }}
           onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
           hideAdminControls
+          hideAll={hideInfo}
         />
       )}
     </div>
