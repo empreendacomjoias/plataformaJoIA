@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { NotificationCenter } from "@/components/layout/NotificationCenter";
+import { useSuppliers } from "@/hooks/useSuppliers";
 
 const menuItems = [
   { icon: List, label: "Lista de Fornecedores", path: "/" },
@@ -21,7 +22,10 @@ const menuItems = [
 
 export function Sidebar() {
   const { isAdmin, signOut, user } = useAuth();
+  const { suppliers } = useSuppliers();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const favoritesCount = suppliers.filter(s => s.isFavorite).length;
   
   return (
     <>
@@ -96,7 +100,18 @@ export function Sidebar() {
                     isActive && "drop-shadow-[0_0_8px_rgba(167,139,250,0.8)]"
                   )} 
                 />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium flex-1">{item.label}</span>
+                {item.path === "/favoritos" && favoritesCount > 0 && (
+                  <Badge 
+                    variant={isActive ? "secondary" : "default"} 
+                    className={cn(
+                      "min-w-[1.5rem] h-5 flex items-center justify-center text-xs",
+                      isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-red-500/90 text-white"
+                    )}
+                  >
+                    {favoritesCount}
+                  </Badge>
+                )}
               </>
             )}
           </NavLink>
