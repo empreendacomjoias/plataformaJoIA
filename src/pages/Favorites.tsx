@@ -47,6 +47,7 @@ export default function Favorites() {
             }
           }}
           onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
+          hideAdminControls
         />
       )}
     </div>
