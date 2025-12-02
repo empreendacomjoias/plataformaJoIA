@@ -7,6 +7,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -76,10 +78,8 @@ function SortableRow({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: transition || 'transform 200ms cubic-bezier(0.25, 1, 0.5, 1)',
-    opacity: isDragging ? 0.8 : 1,
+    opacity: isDragging ? 0.4 : 1,
     zIndex: isDragging ? 1000 : undefined,
-    scale: isDragging ? 1.02 : 1,
-    boxShadow: isDragging ? '0 8px 20px -4px rgba(0, 0, 0, 0.2)' : 'none',
   };
 
   return (
@@ -124,9 +124,12 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDragMode, setIsDragMode] = useState(false);
   const [orderedSuppliers, setOrderedSuppliers] = useState<Supplier[]>(suppliers);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   // Keep orderedSuppliers in sync with suppliers when not in drag mode
   const displayedSuppliers = isDragMode ? orderedSuppliers : suppliers;
+
+  const activeSupplier = activeId ? displayedSuppliers.find(s => s.id === activeId) : null;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -188,6 +191,10 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
     setIsDeleting(false);
   };
 
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -198,6 +205,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
         return arrayMove(items, oldIndex, newIndex);
       });
     }
+    setActiveId(null);
   }, []);
 
   const handleToggleDragMode = () => {
@@ -305,6 +313,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
           <table className="w-full">
@@ -389,6 +398,17 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
               </tbody>
             </SortableContext>
           </table>
+          <DragOverlay>
+            {activeSupplier && (
+              <div className="bg-card border-2 border-primary rounded-lg shadow-2xl p-4 flex items-center gap-4 min-w-[300px]">
+                <GripVertical className="w-5 h-5 text-primary" />
+                <div className="flex flex-col">
+                  <span className="font-semibold text-foreground">{activeSupplier.name}</span>
+                  <span className="text-sm text-muted-foreground">{activeSupplier.region}</span>
+                </div>
+              </div>
+            )}
+          </DragOverlay>
         </DndContext>
       </div>
 
