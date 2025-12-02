@@ -3,14 +3,12 @@ import { Supplier } from "@/types/supplier";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface TopRankingProps {
   suppliers: Supplier[];
 }
 
 export function TopRanking({ suppliers }: TopRankingProps) {
-  const { isAdmin } = useAuth();
   const [hideAll, setHideAll] = useState(false);
   const topSuppliers = [...suppliers]
     .sort((a, b) => b.rating - a.rating)
@@ -28,15 +26,13 @@ export function TopRanking({ suppliers }: TopRankingProps) {
               TOP 3 Fornecedores
             </h2>
           </div>
-          {isAdmin && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setHideAll(!hideAll)}
-            >
-              {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setHideAll(!hideAll)}
+          >
+            {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          </Button>
         </div>
         
         <div className="space-y-2 sm:space-y-3">

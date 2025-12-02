@@ -4,11 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSuppliers } from "@/hooks/useSuppliers";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Ranking() {
   const { suppliers, isLoading } = useSuppliers();
-  const { isAdmin } = useAuth();
   const [hideAll, setHideAll] = useState(false);
 
   const rankedSuppliers = [...suppliers].sort((a, b) => b.rating - a.rating);
@@ -32,17 +30,15 @@ export default function Ranking() {
             </p>
           </div>
         </div>
-        {isAdmin && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setHideAll(!hideAll)}
-            className="gap-2"
-          >
-            {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            {hideAll ? "Mostrar Todos" : "Ocultar Todos"}
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setHideAll(!hideAll)}
+          className="gap-2"
+        >
+          {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          {hideAll ? "Mostrar Todos" : "Ocultar Todos"}
+        </Button>
       </div>
 
       <div className="grid gap-3 md:gap-4">

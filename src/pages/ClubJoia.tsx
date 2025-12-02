@@ -76,31 +76,31 @@ export default function ClubJoia() {
               {moduleDescription?.description || "Tudo que um(a) empreendedor(a) precisa — em um só lugar. Encontre ferramentas, produtos e serviços recomendados pela JoIA e ganhe tempo (e lucro) com soluções que funcionam."}
             </p>
           </div>
-          {isAdmin && (
-            <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setHideAll(!hideAll)}
-                className="gap-2"
-              >
-                {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                {hideAll ? "Mostrar" : "Ocultar"}
-              </Button>
-              {moduleDescription && (
-                <EditDescriptionDialog
-                  id={moduleDescription.id}
-                  currentTitle={moduleDescription.title}
-                  currentDescription={moduleDescription.description}
-                  onSave={(id, title, description) => updateDescription.mutate({ id, title, description })}
-                />
-              )}
+          <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setHideAll(!hideAll)}
+              className="gap-2"
+            >
+              {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              {hideAll ? "Mostrar" : "Ocultar"}
+            </Button>
+            {isAdmin && moduleDescription && (
+              <EditDescriptionDialog
+                id={moduleDescription.id}
+                currentTitle={moduleDescription.title}
+                currentDescription={moduleDescription.description}
+                onSave={(id, title, description) => updateDescription.mutate({ id, title, description })}
+              />
+            )}
+            {isAdmin && (
               <Button onClick={() => navigate("/club-joia/admin")} variant="outline" className="gap-2 flex-1 sm:flex-initial">
                 <Shield className="w-4 h-4" />
                 Admin
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Search */}
