@@ -74,44 +74,51 @@ export function SupportSection() {
       <div>
         <h3 className="text-lg font-semibold">Suporte</h3>
         <p className="text-sm text-muted-foreground">
-          {isAdmin ? "Configure o email de contato para suporte" : "Email de contato para suporte"}
+          {isAdmin ? "Configure o email de contato para suporte" : "Entre em contato conosco"}
         </p>
       </div>
 
       <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="support-email" className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Email de Suporte
-          </Label>
-          {isAdmin ? (
-            <Input
-              id="support-email"
-              type="email"
-              placeholder="suporte@exemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          ) : (
-            <p className="text-sm text-foreground">{email || "Não configurado"}</p>
-          )}
-        </div>
-
-        {isAdmin && (
-          <Button 
-            onClick={handleSave} 
-            disabled={updateMutation.isPending}
-            className="w-full sm:w-auto"
-          >
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              "Salvar Alterações"
-            )}
-          </Button>
+        {isAdmin ? (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="support-email" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Email de Suporte
+              </Label>
+              <Input
+                id="support-email"
+                type="email"
+                placeholder="suporte@exemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <Button 
+              onClick={handleSave} 
+              disabled={updateMutation.isPending}
+              className="w-full sm:w-auto"
+            >
+              {updateMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                "Salvar Alterações"
+              )}
+            </Button>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 text-foreground">
+              <Mail className="w-4 h-4" />
+              <span>{email || "Não configurado"}</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Atendimento de segunda a sexta, das 10h às 18h.
+            </p>
+          </>
         )}
       </div>
     </div>
