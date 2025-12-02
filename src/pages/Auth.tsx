@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
+import { isRateLimited, recordLoginAttempt, getRemainingAttempts } from "@/utils/rateLimiter";
 
 const signupSchema = z.object({
   email: z.string().email("Email inválido").max(255),
@@ -28,10 +29,30 @@ export default function Auth() {
   const [cpf, setCpf] = useState("");
   const [cpfLast6, setCpfLast6] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState({ limited: false, remainingTime: 0 });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkRateLimit = () => {
+      setRateLimitInfo(isRateLimited());
+    };
+    checkRateLimit();
+    const interval = setInterval(checkRateLimit, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isLogin) {
+      const rateCheck = isRateLimited();
+      if (rateCheck.limited) {
+        toast.error(`Muitas tentativas. Aguarde ${rateCheck.remainingTime} minutos.`);
+        setRateLimitInfo(rateCheck);
+        return;
+      }
+    }
+    
     setLoading(true);
 
     try {
@@ -44,14 +65,18 @@ export default function Auth() {
         });
 
         if (error) {
+          recordLoginAttempt(false);
+          const remaining = getRemainingAttempts();
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Email ou primeiros 6 dígitos do CPF incorretos");
+            toast.error(`Email ou CPF incorretos. ${remaining} tentativas restantes.`);
           } else {
             toast.error(error.message);
           }
+          setRateLimitInfo(isRateLimited());
           return;
         }
 
+        recordLoginAttempt(true);
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
@@ -184,8 +209,8 @@ export default function Auth() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}
+          <Button type="submit" className="w-full" disabled={loading || (isLogin && rateLimitInfo.limited)}>
+            {loading ? "Carregando..." : rateLimitInfo.limited && isLogin ? `Bloqueado (${rateLimitInfo.remainingTime}min)` : isLogin ? "Entrar" : "Cadastrar"}
           </Button>
         </form>
 
