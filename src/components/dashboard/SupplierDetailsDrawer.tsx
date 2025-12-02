@@ -85,7 +85,7 @@ export function SupplierDetailsDrawer({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[85vh]">
         <DrawerHeader className="border-b border-border">
-          <DrawerTitle className="text-xl font-bold">{supplier.name}</DrawerTitle>
+          <DrawerTitle className={cn("text-xl font-bold", hideInfo && "blur-sm select-none")}>{supplier.name}</DrawerTitle>
         </DrawerHeader>
         
         <div className="p-4 space-y-6 overflow-y-auto">
