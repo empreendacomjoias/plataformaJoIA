@@ -35,15 +35,13 @@ export default function Favorites() {
           </div>
         </div>
         
-        {isAdmin && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setHideInfo(!hideInfo)}
-          >
-            {hideInfo ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setHideInfo(!hideInfo)}
+        >
+          {hideInfo ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+        </Button>
       </div>
 
       {favoriteSuppliers.length === 0 ? (
