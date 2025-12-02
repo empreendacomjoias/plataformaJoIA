@@ -30,6 +30,8 @@ export default function Dashboard() {
   }).sort((a, b) => {
     if (sortBy === "rating") return b.rating - a.rating;
     if (sortBy === "name") return a.name.localeCompare(b.name);
+    if (sortBy === "minOrder-asc") return a.minOrder - b.minOrder;
+    if (sortBy === "minOrder-desc") return b.minOrder - a.minOrder;
     return 0;
   });
 
