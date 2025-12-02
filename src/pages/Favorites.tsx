@@ -4,9 +4,8 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useRatings } from "@/hooks/useRatings";
 import { useAuth } from "@/contexts/AuthContext";
 import { SupplierTable } from "@/components/dashboard/SupplierTable";
-import { Heart, EyeOff } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Heart, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Favorites() {
   const { suppliers, isLoading } = useSuppliers();
@@ -37,17 +36,15 @@ export default function Favorites() {
         </div>
         
         {isAdmin && (
-          <div className="flex items-center gap-2">
-            <EyeOff className="w-4 h-4 text-muted-foreground" />
-            <Label htmlFor="hide-info-favorites" className="text-sm text-muted-foreground cursor-pointer">
-              Privacidade
-            </Label>
-            <Switch
-              id="hide-info-favorites"
-              checked={hideInfo}
-              onCheckedChange={setHideInfo}
-            />
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setHideInfo(!hideInfo)}
+            className="gap-2"
+          >
+            {hideInfo ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            <span className="hidden sm:inline">{hideInfo ? "Mostrar" : "Ocultar"}</span>
+          </Button>
         )}
       </div>
 
