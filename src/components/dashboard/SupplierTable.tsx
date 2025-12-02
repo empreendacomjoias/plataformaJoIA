@@ -43,6 +43,7 @@ interface SupplierTableProps {
   onToggleFavorite: (id: string) => void;
   onRate: (id: string, rating: number) => void;
   onReorder?: (suppliers: Supplier[]) => void;
+  hideAdminControls?: boolean;
 }
 
 interface SortableRowProps {
@@ -115,7 +116,7 @@ function SortableRow({
   );
 }
 
-export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }: SupplierTableProps) {
+export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false }: SupplierTableProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
   const [hideAll, setHideAll] = useState(false);
@@ -226,7 +227,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
 
   return (
     <Card className="overflow-hidden border-border/50 shadow-lg animate-fade-in">
-      {isAdmin && (
+      {isAdmin && !hideAdminControls && (
         <div className="p-4 border-b border-border/50 flex flex-wrap items-center justify-between gap-3 bg-secondary/30">
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-muted-foreground">
@@ -324,7 +325,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
                     <GripVertical className="w-4 h-4 text-muted-foreground opacity-50" />
                   </th>
                 )}
-                {isAdmin && !isDragMode && (
+                {isAdmin && !isDragMode && !hideAdminControls && (
                   <th className="p-2 sm:p-4 text-left w-10">
                     <Checkbox
                       checked={allSelected}
@@ -379,7 +380,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
                       hideAll={hideAll}
                       isSelected={selectedIds.has(supplier.id)}
                       onSelect={handleSelectOne}
-                      showCheckbox={isAdmin}
+                      showCheckbox={isAdmin && !hideAdminControls}
                       isDragMode={isDragMode}
                     />
                   ) : (
@@ -391,7 +392,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }
                       hideAll={hideAll}
                       isSelected={selectedIds.has(supplier.id)}
                       onSelect={handleSelectOne}
-                      showCheckbox={isAdmin}
+                      showCheckbox={isAdmin && !hideAdminControls}
                     />
                   )
                 )}
