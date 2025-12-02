@@ -176,6 +176,7 @@ export default function AddSupplier() {
     type: "",
     region: "",
     minOrder: "",
+    minOrderType: "reais" as "reais" | "pieces",
     instagram: "",
   });
 
@@ -474,6 +475,7 @@ export default function AddSupplier() {
         type: "",
         region: "",
         minOrder: "",
+        minOrderType: "reais",
         instagram: "",
       });
       setSelectedCategories([]);
@@ -547,15 +549,29 @@ export default function AddSupplier() {
             </div>
 
             <div>
-              <Label htmlFor="minOrder">Pedido Mínimo (R$) *</Label>
-              <Input
-                id="minOrder"
-                type="number"
-                value={formData.minOrder}
-                onChange={(e) => setFormData({ ...formData, minOrder: e.target.value })}
-                placeholder="Ex: 500"
-                className="bg-background/50"
-              />
+              <Label htmlFor="minOrder">Pedido Mínimo *</Label>
+              <div className="flex gap-2">
+                <Select
+                  value={formData.minOrderType}
+                  onValueChange={(value: "reais" | "pieces") => setFormData({ ...formData, minOrderType: value })}
+                >
+                  <SelectTrigger className="w-28 bg-background/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="reais">R$</SelectItem>
+                    <SelectItem value="pieces">Peças</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="minOrder"
+                  type="number"
+                  value={formData.minOrder}
+                  onChange={(e) => setFormData({ ...formData, minOrder: e.target.value })}
+                  placeholder={formData.minOrderType === "reais" ? "Ex: 500" : "Ex: 10"}
+                  className="bg-background/50 flex-1"
+                />
+              </div>
             </div>
 
             <div>
