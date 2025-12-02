@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Mail, Phone, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function SupportSection() {
   const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
 
@@ -74,7 +76,7 @@ export function SupportSection() {
       <div>
         <h3 className="text-lg font-semibold">Suporte</h3>
         <p className="text-sm text-muted-foreground">
-          Configure as informações de contato para suporte
+          {isAdmin ? "Configure as informações de contato para suporte" : "Informações de contato para suporte"}
         </p>
       </div>
 
@@ -84,13 +86,17 @@ export function SupportSection() {
             <Mail className="w-4 h-4" />
             Email de Suporte
           </Label>
-          <Input
-            id="support-email"
-            type="email"
-            placeholder="suporte@exemplo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          {isAdmin ? (
+            <Input
+              id="support-email"
+              type="email"
+              placeholder="suporte@exemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          ) : (
+            <p className="text-sm text-foreground">{email || "Não configurado"}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -98,29 +104,35 @@ export function SupportSection() {
             <Phone className="w-4 h-4" />
             WhatsApp de Suporte
           </Label>
-          <Input
-            id="support-whatsapp"
-            type="tel"
-            placeholder="(11) 99999-9999"
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
-          />
+          {isAdmin ? (
+            <Input
+              id="support-whatsapp"
+              type="tel"
+              placeholder="(11) 99999-9999"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+            />
+          ) : (
+            <p className="text-sm text-foreground">{whatsapp || "Não configurado"}</p>
+          )}
         </div>
 
-        <Button 
-          onClick={handleSave} 
-          disabled={updateMutation.isPending}
-          className="w-full sm:w-auto"
-        >
-          {updateMutation.isPending ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Salvando...
-            </>
-          ) : (
-            "Salvar Alterações"
-          )}
-        </Button>
+        {isAdmin && (
+          <Button 
+            onClick={handleSave} 
+            disabled={updateMutation.isPending}
+            className="w-full sm:w-auto"
+          >
+            {updateMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              "Salvar Alterações"
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );
