@@ -24,6 +24,7 @@ interface ImportedSupplier {
   type: string;
   region: string;
   minOrder: number;
+  minOrderIsPieces: boolean;
   instagram: string;
   categories: string[];
   valid: boolean;
@@ -127,16 +128,23 @@ const normalizeInstagram = (input: string): string => {
   return `@${cleaned}`;
 };
 
-// Função para extrair número
-const extractNumber = (input: any): number => {
-  if (typeof input === "number") return input;
+// Função para extrair número e detectar se é peças ou valor
+const extractMinOrder = (input: any): { value: number; isPieces: boolean } => {
+  if (typeof input === "number") return { value: input, isPieces: false };
   
-  const str = String(input);
+  const str = String(input).toLowerCase().trim();
+  
+  // Detecta se é quantidade de peças
+  const isPieces = /pe[çc]a|un(idade)?|pç|pc|itens?|qtd/i.test(str);
+  
   // Remove símbolos de moeda, espaços e extrai números
-  const cleaned = str.replace(/[R$\s.]/g, "").replace(",", ".");
+  const cleaned = str.replace(/[R$\s.]/g, "").replace(",", ".").replace(/[^\d.]/g, "");
   const num = parseFloat(cleaned);
   
-  return isNaN(num) ? 0 : num;
+  return { 
+    value: isNaN(num) ? 0 : num, 
+    isPieces 
+  };
 };
 
 // Função para normalizar categorias
@@ -223,7 +231,7 @@ export default function AddSupplier() {
     const region = normalizeRegion(regionRaw);
     
     const minOrderRaw = findValue(["Pedido Mínimo", "Pedido Minimo", "minOrder", "min_order", "minimo", "mínimo", "pedido_min", "valor_minimo"]);
-    const minOrder = extractNumber(minOrderRaw);
+    const { value: minOrder, isPieces: minOrderIsPieces } = extractMinOrder(minOrderRaw);
     
     const instagramRaw = String(findValue(["Instagram", "instagram", "insta", "ig", "rede_social", "social"]) || "").trim();
     const instagram = instagramRaw ? normalizeInstagram(instagramRaw) : "";
@@ -246,6 +254,7 @@ export default function AddSupplier() {
       type: type || typeRaw,
       region: region || regionRaw.toUpperCase().substring(0, 2),
       minOrder,
+      minOrderIsPieces,
       instagram,
       categories: categoriesList,
       valid: errors.length === 0,
@@ -764,7 +773,7 @@ export default function AddSupplier() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{supplier.name || "Sem nome"}</p>
                         <p className="text-xs text-muted-foreground">
-                          {supplier.type} • {supplier.region} • R$ {supplier.minOrder}
+                          {supplier.type} • {supplier.region} • {supplier.minOrderIsPieces ? `${supplier.minOrder} peças` : `R$ ${supplier.minOrder}`}
                         </p>
                         {supplier.categories.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
