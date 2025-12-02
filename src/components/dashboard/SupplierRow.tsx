@@ -4,6 +4,7 @@ import { Supplier } from "@/types/supplier";
 import { StarRating } from "./StarRating";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -25,6 +26,9 @@ interface SupplierRowProps {
   onToggleFavorite: (id: string) => void;
   onRate: (id: string, rating: number) => void;
   hideAll?: boolean;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
+  showCheckbox?: boolean;
 }
 
 const defaultCategoryColors: Record<string, string> = {
@@ -59,7 +63,15 @@ const getCategoryColor = (category: string) => {
   return categoryColorPalette[hash % categoryColorPalette.length];
 };
 
-export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = false }: SupplierRowProps) {
+export function SupplierRow({ 
+  supplier, 
+  onToggleFavorite, 
+  onRate, 
+  hideAll = false,
+  isSelected = false,
+  onSelect,
+  showCheckbox = false
+}: SupplierRowProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -99,7 +111,20 @@ export function SupplierRow({ supplier, onToggleFavorite, onRate, hideAll = fals
 
   return (
     <>
-      <tr className="border-b border-border/50 hover:bg-secondary/30 transition-colors group">
+      <tr className={cn(
+        "border-b border-border/50 hover:bg-secondary/30 transition-colors group",
+        isSelected && "bg-primary/10"
+      )}>
+      {/* Checkbox */}
+      {showCheckbox && (
+        <td className="p-2 sm:p-4">
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={() => onSelect?.(supplier.id)}
+            aria-label={`Selecionar ${supplier.name}`}
+          />
+        </td>
+      )}
       {/* Favorite */}
       <td className="p-2 sm:p-4">
         <button
