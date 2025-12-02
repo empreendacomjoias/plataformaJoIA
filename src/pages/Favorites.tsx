@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRatings } from "@/hooks/useRatings";
+import { useAuth } from "@/contexts/AuthContext";
 import { SupplierTable } from "@/components/dashboard/SupplierTable";
 import { Heart, EyeOff } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -11,6 +12,7 @@ export default function Favorites() {
   const { suppliers, isLoading } = useSuppliers();
   const { toggleFavorite } = useFavorites();
   const { rateSupplier } = useRatings();
+  const { isAdmin } = useAuth();
   const [hideInfo, setHideInfo] = useState(false);
 
   const favoriteSuppliers = suppliers.filter((s) => s.isFavorite);
@@ -34,17 +36,19 @@ export default function Favorites() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <EyeOff className="w-4 h-4 text-muted-foreground" />
-          <Label htmlFor="hide-info-favorites" className="text-sm text-muted-foreground cursor-pointer">
-            Privacidade
-          </Label>
-          <Switch
-            id="hide-info-favorites"
-            checked={hideInfo}
-            onCheckedChange={setHideInfo}
-          />
-        </div>
+        {isAdmin && (
+          <div className="flex items-center gap-2">
+            <EyeOff className="w-4 h-4 text-muted-foreground" />
+            <Label htmlFor="hide-info-favorites" className="text-sm text-muted-foreground cursor-pointer">
+              Privacidade
+            </Label>
+            <Switch
+              id="hide-info-favorites"
+              checked={hideInfo}
+              onCheckedChange={setHideInfo}
+            />
+          </div>
+        )}
       </div>
 
       {favoriteSuppliers.length === 0 ? (
