@@ -5,14 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Mail, Phone, Loader2 } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function SupportSection() {
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
   const [email, setEmail] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["support-settings"],
@@ -31,22 +30,21 @@ export function SupportSection() {
   useEffect(() => {
     if (settings) {
       setEmail(settings.support_email || "");
-      setWhatsapp(settings.support_whatsapp || "");
     }
   }, [settings]);
 
   const updateMutation = useMutation({
-    mutationFn: async ({ email, whatsapp }: { email: string; whatsapp: string }) => {
+    mutationFn: async ({ email }: { email: string }) => {
       if (settings?.id) {
         const { error } = await supabase
           .from("support_settings")
-          .update({ support_email: email, support_whatsapp: whatsapp })
+          .update({ support_email: email })
           .eq("id", settings.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("support_settings")
-          .insert({ support_email: email, support_whatsapp: whatsapp });
+          .insert({ support_email: email });
         if (error) throw error;
       }
     },
@@ -60,7 +58,7 @@ export function SupportSection() {
   });
 
   const handleSave = () => {
-    updateMutation.mutate({ email, whatsapp });
+    updateMutation.mutate({ email });
   };
 
   if (isLoading) {
@@ -76,7 +74,7 @@ export function SupportSection() {
       <div>
         <h3 className="text-lg font-semibold">Suporte</h3>
         <p className="text-sm text-muted-foreground">
-          {isAdmin ? "Configure as informações de contato para suporte" : "Informações de contato para suporte"}
+          {isAdmin ? "Configure o email de contato para suporte" : "Email de contato para suporte"}
         </p>
       </div>
 
@@ -96,24 +94,6 @@ export function SupportSection() {
             />
           ) : (
             <p className="text-sm text-foreground">{email || "Não configurado"}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="support-whatsapp" className="flex items-center gap-2">
-            <Phone className="w-4 h-4" />
-            WhatsApp de Suporte
-          </Label>
-          {isAdmin ? (
-            <Input
-              id="support-whatsapp"
-              type="tel"
-              placeholder="(11) 99999-9999"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-            />
-          ) : (
-            <p className="text-sm text-foreground">{whatsapp || "Não configurado"}</p>
           )}
         </div>
 
