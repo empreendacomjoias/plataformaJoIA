@@ -2,16 +2,17 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2, Pencil, X, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function SupportSection() {
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
   const [email, setEmail] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editEmail, setEditEmail] = useState("");
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["support-settings"],
@@ -50,15 +51,26 @@ export function SupportSection() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["support-settings"] });
-      toast.success("Configurações de suporte atualizadas!");
+      toast.success("Email de suporte atualizado!");
+      setIsEditing(false);
     },
     onError: () => {
-      toast.error("Erro ao atualizar configurações de suporte");
+      toast.error("Erro ao atualizar email de suporte");
     },
   });
 
+  const handleEdit = () => {
+    setEditEmail(email);
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditEmail("");
+  };
+
   const handleSave = () => {
-    updateMutation.mutate({ email });
+    updateMutation.mutate({ email: editEmail });
   };
 
   if (isLoading) {
@@ -71,44 +83,55 @@ export function SupportSection() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold">Suporte</h3>
-        <p className="text-sm text-muted-foreground">
-          {isAdmin ? "Configure o email de contato para suporte" : "Entre em contato conosco"}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Suporte</h3>
+          <p className="text-sm text-muted-foreground">
+            Entre em contato conosco
+          </p>
+        </div>
+        {isAdmin && !isEditing && (
+          <Button variant="ghost" size="icon" onClick={handleEdit}>
+            <Pencil className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       <div className="space-y-4">
-        {isAdmin ? (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="support-email" className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                Email de Suporte
-              </Label>
-              <Input
-                id="support-email"
-                type="email"
-                placeholder="suporte@exemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+        {isEditing ? (
+          <div className="space-y-3">
+            <Input
+              type="email"
+              placeholder="suporte@exemplo.com"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button 
+                size="sm"
+                onClick={handleSave} 
+                disabled={updateMutation.isPending}
+              >
+                {updateMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-1" />
+                    Salvar
+                  </>
+                )}
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={handleCancel}
+                disabled={updateMutation.isPending}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Cancelar
+              </Button>
             </div>
-            <Button 
-              onClick={handleSave} 
-              disabled={updateMutation.isPending}
-              className="w-full sm:w-auto"
-            >
-              {updateMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                "Salvar Alterações"
-              )}
-            </Button>
-          </>
+          </div>
         ) : (
           <>
             <div className="flex items-center gap-2 text-foreground">
