@@ -1,10 +1,27 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Supplier } from "@/types/supplier";
 import { SupplierRow } from "./SupplierRow";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Trash2, GripVertical, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { toast } from "sonner";
@@ -23,15 +40,102 @@ interface SupplierTableProps {
   suppliers: Supplier[];
   onToggleFavorite: (id: string) => void;
   onRate: (id: string, rating: number) => void;
+  onReorder?: (suppliers: Supplier[]) => void;
 }
 
-export function SupplierTable({ suppliers, onToggleFavorite, onRate }: SupplierTableProps) {
+interface SortableRowProps {
+  supplier: Supplier;
+  onToggleFavorite: (id: string) => void;
+  onRate: (id: string, rating: number) => void;
+  hideAll: boolean;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+  showCheckbox: boolean;
+  isDragMode: boolean;
+}
+
+function SortableRow({
+  supplier,
+  onToggleFavorite,
+  onRate,
+  hideAll,
+  isSelected,
+  onSelect,
+  showCheckbox,
+  isDragMode,
+}: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: supplier.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : undefined,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b border-border/50 hover:bg-secondary/30 transition-colors group ${
+        isSelected ? "bg-primary/10" : ""
+      } ${isDragging ? "bg-secondary/50" : ""}`}
+    >
+      {isDragMode && (
+        <td className="p-2 sm:p-4 w-8">
+          <button
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing touch-none p-1 rounded hover:bg-secondary/50"
+          >
+            <GripVertical className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </td>
+      )}
+      <SupplierRow
+        supplier={supplier}
+        onToggleFavorite={onToggleFavorite}
+        onRate={onRate}
+        hideAll={hideAll}
+        isSelected={isSelected}
+        onSelect={onSelect}
+        showCheckbox={showCheckbox && !isDragMode}
+        asFragment
+      />
+    </tr>
+  );
+}
+
+export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder }: SupplierTableProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
   const [hideAll, setHideAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDragMode, setIsDragMode] = useState(false);
+  const [orderedSuppliers, setOrderedSuppliers] = useState<Supplier[]>(suppliers);
+
+  // Keep orderedSuppliers in sync with suppliers when not in drag mode
+  const displayedSuppliers = isDragMode ? orderedSuppliers : suppliers;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const allSelected = suppliers.length > 0 && selectedIds.size === suppliers.length;
   const someSelected = selectedIds.size > 0 && selectedIds.size < suppliers.length;
@@ -82,6 +186,34 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate }: SupplierT
     setIsDeleting(false);
   };
 
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setOrderedSuppliers((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }, []);
+
+  const handleToggleDragMode = () => {
+    if (!isDragMode) {
+      // Entering drag mode - sync with current suppliers
+      setOrderedSuppliers(suppliers);
+    }
+    setIsDragMode(!isDragMode);
+  };
+
+  const handleSaveOrder = () => {
+    if (onReorder) {
+      onReorder(orderedSuppliers);
+    }
+    toast.success("Ordem dos fornecedores salva!");
+    setIsDragMode(false);
+  };
+
   return (
     <Card className="overflow-hidden border-border/50 shadow-lg animate-fade-in">
       {isAdmin && (
@@ -90,103 +222,172 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate }: SupplierT
             <span className="text-sm font-medium text-muted-foreground">
               Controles de Administrador
             </span>
-            {selectedIds.size > 0 && (
+            {selectedIds.size > 0 && !isDragMode && (
               <span className="text-sm text-primary font-medium">
                 {selectedIds.size} selecionado(s)
               </span>
             )}
+            {isDragMode && (
+              <span className="text-sm text-primary font-medium">
+                Arraste para reordenar
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
-            {selectedIds.size > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-                className="gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                Apagar ({selectedIds.size})
-              </Button>
+            {isDragMode ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDragMode(false)}
+                  className="gap-2"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleSaveOrder}
+                  className="gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  Salvar Ordem
+                </Button>
+              </>
+            ) : (
+              <>
+                {selectedIds.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Apagar ({selectedIds.size})
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleToggleDragMode}
+                  className="gap-2"
+                >
+                  <GripVertical className="w-4 h-4" />
+                  Reordenar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHideAll(!hideAll)}
+                  className="gap-2"
+                >
+                  {hideAll ? (
+                    <>
+                      <Eye className="w-4 h-4" />
+                      Mostrar Todos
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="w-4 h-4" />
+                      Ocultar Todos
+                    </>
+                  )}
+                </Button>
+              </>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setHideAll(!hideAll)}
-              className="gap-2"
-            >
-              {hideAll ? (
-                <>
-                  <Eye className="w-4 h-4" />
-                  Mostrar Todos
-                </>
-              ) : (
-                <>
-                  <EyeOff className="w-4 h-4" />
-                  Ocultar Todos
-                </>
-              )}
-            </Button>
           </div>
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-secondary/50 backdrop-blur-sm border-b border-border">
-            <tr>
-              {isAdmin && (
-                <th className="p-2 sm:p-4 text-left w-10">
-                  <Checkbox
-                    checked={allSelected}
-                    onCheckedChange={handleSelectAll}
-                    aria-label="Selecionar todos"
-                    className={someSelected ? "data-[state=checked]:bg-primary/50" : ""}
-                  />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <table className="w-full">
+            <thead className="bg-secondary/50 backdrop-blur-sm border-b border-border">
+              <tr>
+                {isDragMode && (
+                  <th className="p-2 sm:p-4 text-left w-10">
+                    <GripVertical className="w-4 h-4 text-muted-foreground opacity-50" />
+                  </th>
+                )}
+                {isAdmin && !isDragMode && (
+                  <th className="p-2 sm:p-4 text-left w-10">
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Selecionar todos"
+                      className={someSelected ? "data-[state=checked]:bg-primary/50" : ""}
+                    />
+                  </th>
+                )}
+                <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground w-10 sm:w-14">
+                  ❤️
                 </th>
-              )}
-              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground w-10 sm:w-14">
-                ❤️
-              </th>
-              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Nome do Fornecedor
-              </th>
-              <th className="hidden md:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Tipo
-              </th>
-              <th className="hidden lg:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Categorias
-              </th>
-              <th className="hidden sm:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Região
-              </th>
-              <th className="hidden xl:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Pedido Mínimo
-              </th>
-              <th className="hidden md:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Instagram
-              </th>
-              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
-                Avaliação
-              </th>
-              <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground w-10 sm:w-14">
-                Ações
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {suppliers.map((supplier) => (
-              <SupplierRow
-                key={supplier.id}
-                supplier={supplier}
-                onToggleFavorite={onToggleFavorite}
-                onRate={onRate}
-                hideAll={hideAll}
-                isSelected={selectedIds.has(supplier.id)}
-                onSelect={handleSelectOne}
-                showCheckbox={isAdmin}
-              />
-            ))}
-          </tbody>
-        </table>
+                <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Nome do Fornecedor
+                </th>
+                <th className="hidden md:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Tipo
+                </th>
+                <th className="hidden lg:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Categorias
+                </th>
+                <th className="hidden sm:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Região
+                </th>
+                <th className="hidden xl:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Pedido Mínimo
+                </th>
+                <th className="hidden md:table-cell p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Instagram
+                </th>
+                <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
+                  Avaliação
+                </th>
+                <th className="p-2 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground w-10 sm:w-14">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <SortableContext
+              items={displayedSuppliers.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+              disabled={!isDragMode}
+            >
+              <tbody>
+                {displayedSuppliers.map((supplier) =>
+                  isDragMode ? (
+                    <SortableRow
+                      key={supplier.id}
+                      supplier={supplier}
+                      onToggleFavorite={onToggleFavorite}
+                      onRate={onRate}
+                      hideAll={hideAll}
+                      isSelected={selectedIds.has(supplier.id)}
+                      onSelect={handleSelectOne}
+                      showCheckbox={isAdmin}
+                      isDragMode={isDragMode}
+                    />
+                  ) : (
+                    <SupplierRow
+                      key={supplier.id}
+                      supplier={supplier}
+                      onToggleFavorite={onToggleFavorite}
+                      onRate={onRate}
+                      hideAll={hideAll}
+                      isSelected={selectedIds.has(supplier.id)}
+                      onSelect={handleSelectOne}
+                      showCheckbox={isAdmin}
+                    />
+                  )
+                )}
+              </tbody>
+            </SortableContext>
+          </table>
+        </DndContext>
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

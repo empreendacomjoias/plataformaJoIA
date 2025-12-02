@@ -29,6 +29,7 @@ interface SupplierRowProps {
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   showCheckbox?: boolean;
+  asFragment?: boolean; // When true, returns only td cells without tr wrapper
 }
 
 const defaultCategoryColors: Record<string, string> = {
@@ -70,7 +71,8 @@ export function SupplierRow({
   hideAll = false,
   isSelected = false,
   onSelect,
-  showCheckbox = false
+  showCheckbox = false,
+  asFragment = false
 }: SupplierRowProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
@@ -109,12 +111,8 @@ export function SupplierRow({
     setShowDeleteDialog(false);
   };
 
-  return (
+  const cells = (
     <>
-      <tr className={cn(
-        "border-b border-border/50 hover:bg-secondary/30 transition-colors group",
-        isSelected && "bg-primary/10"
-      )}>
       {/* Checkbox */}
       {showCheckbox && (
         <td className="p-2 sm:p-4">
@@ -286,33 +284,57 @@ export function SupplierRow({
           </DropdownMenuContent>
         </DropdownMenu>
       </td>
-    </tr>
+    </>
+  );
 
-    <ConfirmDeleteDialog
-      open={showDeleteDialog}
-      onOpenChange={setShowDeleteDialog}
-      onConfirm={handleDelete}
-      supplierName={supplier.name}
-    />
+  const dialogs = (
+    <>
+      <ConfirmDeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        supplierName={supplier.name}
+      />
 
-    <EditSupplierDialog
-      supplier={supplier}
-      open={showEditDialog}
-      onOpenChange={setShowEditDialog}
-    />
+      <EditSupplierDialog
+        supplier={supplier}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+      />
 
-    <AddToClubDialog
-      supplier={supplier}
-      open={showAddToClubDialog}
-      onOpenChange={setShowAddToClubDialog}
-    />
+      <AddToClubDialog
+        supplier={supplier}
+        open={showAddToClubDialog}
+        onOpenChange={setShowAddToClubDialog}
+      />
 
-    <SupplierDetailsDrawer
-      supplier={supplier}
-      open={showDetailsDrawer}
-      onOpenChange={setShowDetailsDrawer}
-      onRate={(rating) => onRate(supplier.id, rating)}
-    />
+      <SupplierDetailsDrawer
+        supplier={supplier}
+        open={showDetailsDrawer}
+        onOpenChange={setShowDetailsDrawer}
+        onRate={(rating) => onRate(supplier.id, rating)}
+      />
+    </>
+  );
+
+  if (asFragment) {
+    return (
+      <>
+        {cells}
+        {dialogs}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <tr className={cn(
+        "border-b border-border/50 hover:bg-secondary/30 transition-colors group",
+        isSelected && "bg-primary/10"
+      )}>
+        {cells}
+      </tr>
+      {dialogs}
     </>
   );
 }
