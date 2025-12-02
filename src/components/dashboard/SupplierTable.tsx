@@ -24,7 +24,7 @@ import { MobileHint } from "./MobileHint";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Trash2, GripVertical, Save } from "lucide-react";
+import { Trash2, GripVertical, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { toast } from "sonner";
@@ -118,11 +118,9 @@ function SortableRow({
   );
 }
 
-export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false, hideAll: externalHideAll }: SupplierTableProps) {
+export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false, hideAll = false }: SupplierTableProps) {
   const { isAdmin } = useAuth();
   const { deleteSupplier } = useSuppliers();
-  const [internalHideAll, setInternalHideAll] = useState(false);
-  const hideAll = externalHideAll !== undefined ? externalHideAll : internalHideAll;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -291,13 +289,6 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
                 >
                   <GripVertical className="w-4 h-4" />
                   Reordenar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setInternalHideAll(!internalHideAll)}
-                >
-                  {hideAll ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </Button>
               </>
             )}
