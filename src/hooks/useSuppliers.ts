@@ -136,7 +136,7 @@ export function useSuppliers() {
   return {
     suppliers,
     isLoading,
-    deleteSupplier: deleteMutation.mutate,
+    deleteSupplier: deleteMutation.mutateAsync,
     updateSupplier: updateMutation.mutateAsync,
   };
 }
