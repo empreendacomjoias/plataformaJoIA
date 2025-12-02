@@ -111,21 +111,25 @@ export default function NotificationsAdmin() {
                 <Input
                   id="create-title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => setTitle(e.target.value.slice(0, 100))}
                   placeholder="Digite o título da notificação"
                   required
+                  maxLength={100}
                 />
+                <p className="text-xs text-muted-foreground mt-1">{title.length}/100</p>
               </div>
               <div>
                 <Label htmlFor="create-message">Mensagem</Label>
                 <Textarea
                   id="create-message"
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(e) => setMessage(e.target.value.slice(0, 500))}
                   placeholder="Digite a mensagem da notificação"
                   rows={4}
                   required
+                  maxLength={500}
                 />
+                <p className="text-xs text-muted-foreground mt-1">{message.length}/500</p>
               </div>
               <Button 
                 type="submit" 
@@ -154,21 +158,25 @@ export default function NotificationsAdmin() {
               <Input
                 id="edit-title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => setTitle(e.target.value.slice(0, 100))}
                 placeholder="Digite o título da notificação"
                 required
+                maxLength={100}
               />
+              <p className="text-xs text-muted-foreground mt-1">{title.length}/100</p>
             </div>
             <div>
               <Label htmlFor="edit-message">Mensagem</Label>
               <Textarea
                 id="edit-message"
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => setMessage(e.target.value.slice(0, 500))}
                 placeholder="Digite a mensagem da notificação"
                 rows={4}
                 required
+                maxLength={500}
               />
+              <p className="text-xs text-muted-foreground mt-1">{message.length}/500</p>
             </div>
             <div className="flex gap-2">
               <Button 
