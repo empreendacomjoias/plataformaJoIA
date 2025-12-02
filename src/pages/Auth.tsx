@@ -12,12 +12,17 @@ const signupSchema = z.object({
   email: z.string().email("Email inválido").max(255),
   fullName: z.string().min(2, "Nome deve ter no mínimo 2 caracteres").max(100),
   phone: z.string().min(10, "Celular deve ter no mínimo 10 dígitos").max(15),
-  cpf: z.string().length(11, "CPF deve ter 11 dígitos"),
+  password: z.string()
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(72, "Senha deve ter no máximo 72 caracteres")
+    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
+    .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
+    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
 });
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido").max(255),
-  cpfLast6: z.string().length(6, "Digite os primeiros 6 dígitos do CPF"),
+  password: z.string().min(1, "Digite sua senha"),
 });
 
 export default function Auth() {
@@ -25,8 +30,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [cpfLast6, setCpfLast6] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -36,16 +41,16 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        loginSchema.parse({ email, cpfLast6 });
+        loginSchema.parse({ email, password });
 
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
-          password: cpfLast6,
+          password,
         });
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Email ou primeiros 6 dígitos do CPF incorretos");
+            toast.error("Email ou senha incorretos");
           } else {
             toast.error(error.message);
           }
@@ -53,13 +58,10 @@ export default function Auth() {
         }
 
         toast.success("Login realizado com sucesso!");
-
-        // ✔ HashRouter converte para /#/ automaticamente
         navigate("/");
       } else {
-        signupSchema.parse({ email, fullName, phone, cpf });
+        signupSchema.parse({ email, fullName, phone, password });
 
-        const password = cpf.slice(0, 6);
         const redirectUrl = `${window.location.origin}/`;
 
         const { error } = await supabase.auth.signUp({
@@ -70,7 +72,6 @@ export default function Auth() {
             data: {
               full_name: fullName.trim(),
               phone: phone.trim(),
-              cpf: cpf.trim(),
             },
           },
         });
@@ -84,9 +85,9 @@ export default function Auth() {
           return;
         }
 
-        toast.success("Cadastro realizado! Use os primeiros 6 dígitos do CPF para fazer login.");
+        toast.success("Cadastro realizado! Faça login com suas credenciais.");
         setIsLogin(true);
-        setCpfLast6(password);
+        setPassword("");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -142,19 +143,6 @@ export default function Auth() {
                   maxLength={15}
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF (apenas números)</Label>
-                <Input
-                  id="cpf"
-                  type="text"
-                  placeholder="00000000000"
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value.replace(/\D/g, ""))}
-                  required
-                  maxLength={11}
-                />
-              </div>
             </>
           )}
 
@@ -171,20 +159,32 @@ export default function Auth() {
             />
           </div>
 
-          {isLogin && (
-            <div className="space-y-2">
-              <Label htmlFor="cpfLast6">Primeiros 6 dígitos do CPF</Label>
+          <div className="space-y-2">
+            <Label htmlFor="password">Senha</Label>
+            <div className="relative">
               <Input
-                id="cpfLast6"
-                type="text"
-                placeholder="000000"
-                value={cpfLast6}
-                onChange={(e) => setCpfLast6(e.target.value.replace(/\D/g, ""))}
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder={isLogin ? "Digite sua senha" : "Mínimo 8 caracteres"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                maxLength={6}
+                maxLength={72}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm"
+              >
+                {showPassword ? "Ocultar" : "Mostrar"}
+              </button>
             </div>
-          )}
+            {!isLogin && (
+              <p className="text-xs text-muted-foreground">
+                Mínimo 8 caracteres, incluindo maiúscula, minúscula e número
+              </p>
+            )}
+          </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}

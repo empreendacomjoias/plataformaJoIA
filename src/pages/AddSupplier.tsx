@@ -283,31 +283,20 @@ export default function AddSupplier() {
 
     try {
       const data = await file.arrayBuffer();
-      console.log("📄 Arquivo lido, processando...");
       
       const workbook = XLSX.read(data, { type: "array" });
-      console.log("📊 Planilhas encontradas:", workbook.SheetNames);
       
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      console.log("📋 Linhas encontradas:", jsonData.length);
-      
       if (jsonData.length === 0) {
         toast.error("A planilha está vazia ou não foi possível ler os dados");
         setUploading(false);
         return;
       }
 
-      // Log das colunas detectadas para debug
-      const firstRow = jsonData[0] as Record<string, any>;
-      const columns = Object.keys(firstRow);
-      console.log("📝 Colunas detectadas:", columns);
-      console.log("📝 Primeira linha:", firstRow);
-
-      const validated = jsonData.map((row, idx) => {
-        console.log(`Row ${idx + 1}:`, row);
+      const validated = jsonData.map((row) => {
         return validateSupplier(row);
       });
       
@@ -317,15 +306,12 @@ export default function AddSupplier() {
       const validCount = validated.filter(s => s.valid).length;
       const invalidCount = validated.filter(s => !s.valid).length;
       
-      console.log(`✅ Válidos: ${validCount}, ❌ Inválidos: ${invalidCount}`);
-      
       if (invalidCount > 0) {
         toast.warning(`${validCount} válidos, ${invalidCount} com erros`);
       } else {
         toast.success(`${validCount} fornecedores prontos para importar`);
       }
     } catch (error: any) {
-      console.error("❌ Erro ao processar arquivo:", error);
       toast.error(`Erro ao processar arquivo: ${error.message || "Verifique o formato"}`);
     } finally {
       setUploading(false);
@@ -398,7 +384,6 @@ export default function AddSupplier() {
 
         successCount++;
       } catch (error) {
-        console.error(`Error importing ${supplier.name}:`, error);
         errorCount++;
       }
     }
