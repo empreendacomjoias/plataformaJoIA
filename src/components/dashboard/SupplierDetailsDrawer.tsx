@@ -133,7 +133,10 @@ export function SupplierDetailsDrawer({
             <div className="flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-accent" />
               <span className="text-base font-medium">
-                R$ {supplier.minOrder.toLocaleString("pt-BR")}
+                {supplier.minOrderIsPieces 
+                  ? `${supplier.minOrder.toLocaleString("pt-BR")} peças`
+                  : `R$ ${supplier.minOrder.toLocaleString("pt-BR")}`
+                }
               </span>
             </div>
           </div>

@@ -360,6 +360,7 @@ export default function AddSupplier() {
             type: supplier.type,
             region: supplier.region,
             min_order: supplier.minOrder,
+            min_order_is_pieces: supplier.minOrderIsPieces,
             instagram: supplier.instagram,
           })
           .select()
@@ -441,6 +442,7 @@ export default function AddSupplier() {
           type: formData.type,
           region: formData.region,
           min_order: parseFloat(formData.minOrder),
+          min_order_is_pieces: formData.minOrderType === "pieces",
           instagram: formData.instagram,
         })
         .select()

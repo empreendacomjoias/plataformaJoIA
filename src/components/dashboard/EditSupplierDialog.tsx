@@ -27,6 +27,7 @@ export function EditSupplierDialog({ supplier, open, onOpenChange }: EditSupplie
     type: "",
     region: "",
     minOrder: "",
+    minOrderIsPieces: false,
     instagram: "",
   });
 
@@ -38,6 +39,7 @@ export function EditSupplierDialog({ supplier, open, onOpenChange }: EditSupplie
         type: supplier.type,
         region: supplier.region,
         minOrder: supplier.minOrder.toString(),
+        minOrderIsPieces: supplier.minOrderIsPieces || false,
         instagram: supplier.instagram,
       });
       setSelectedCategories(supplier.categories);
@@ -76,6 +78,7 @@ export function EditSupplierDialog({ supplier, open, onOpenChange }: EditSupplie
         type: formData.type as "Fabricante" | "Atacadista",
         region: formData.region,
         minOrder: parseFloat(formData.minOrder),
+        minOrderIsPieces: formData.minOrderIsPieces,
         instagram: formData.instagram,
         categories: selectedCategories,
       });
@@ -136,15 +139,29 @@ export function EditSupplierDialog({ supplier, open, onOpenChange }: EditSupplie
           </div>
 
           <div>
-            <Label htmlFor="edit-minOrder">Pedido Mínimo (R$) *</Label>
-            <Input
-              id="edit-minOrder"
-              type="number"
-              value={formData.minOrder}
-              onChange={(e) => setFormData({ ...formData, minOrder: e.target.value })}
-              placeholder="Ex: 500"
-              className="bg-background/50"
-            />
+            <Label htmlFor="edit-minOrder">Pedido Mínimo *</Label>
+            <div className="flex gap-2">
+              <Select
+                value={formData.minOrderIsPieces ? "pieces" : "reais"}
+                onValueChange={(value) => setFormData({ ...formData, minOrderIsPieces: value === "pieces" })}
+              >
+                <SelectTrigger className="w-24 bg-background/50">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="reais">R$</SelectItem>
+                  <SelectItem value="pieces">Peças</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                id="edit-minOrder"
+                type="number"
+                value={formData.minOrder}
+                onChange={(e) => setFormData({ ...formData, minOrder: e.target.value })}
+                placeholder={formData.minOrderIsPieces ? "Ex: 50" : "Ex: 500"}
+                className="bg-background/50 flex-1"
+              />
+            </div>
           </div>
 
           <div>
