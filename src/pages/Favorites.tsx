@@ -38,12 +38,10 @@ export default function Favorites() {
         {isAdmin && (
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={() => setHideInfo(!hideInfo)}
-            className="gap-2"
           >
             {hideInfo ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            <span className="hidden sm:inline">{hideInfo ? "Mostrar" : "Ocultar"}</span>
           </Button>
         )}
       </div>
