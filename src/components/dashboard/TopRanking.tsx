@@ -14,9 +14,9 @@ export function TopRanking({ suppliers }: TopRankingProps) {
   const [hideAll, setHideAll] = useState(false);
   const topSuppliers = [...suppliers]
     .sort((a, b) => b.rating - a.rating)
-    .slice(0, 5);
+    .slice(0, 3);
 
-  const medals = ["🏆", "🥈", "🥉", "4️⃣", "5️⃣"];
+  const medals = ["🏆", "🥈", "🥉"];
 
   return (
     <Card className="bg-gradient-to-br from-card to-secondary/30 border-primary/30 shadow-lg shadow-primary/10 animate-fade-in">
@@ -25,7 +25,7 @@ export function TopRanking({ suppliers }: TopRankingProps) {
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="text-xl sm:text-2xl">🏆</span>
             <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              TOP 5 Fornecedores
+              TOP 3 Fornecedores
             </h2>
           </div>
           {isAdmin && (
