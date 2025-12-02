@@ -20,6 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Supplier } from "@/types/supplier";
 import { SupplierRow } from "./SupplierRow";
+import { MobileHint } from "./MobileHint";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -228,7 +229,9 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
   };
 
   return (
-    <Card className="overflow-hidden border-border/50 shadow-lg animate-fade-in">
+    <>
+      <MobileHint />
+      <Card className="overflow-hidden border-border/50 shadow-lg animate-fade-in">
       {isAdmin && !hideAdminControls && (
         <div className="p-4 border-b border-border/50 flex flex-wrap items-center justify-between gap-3 bg-secondary/30">
           <div className="flex items-center gap-4">
@@ -426,5 +429,6 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
         </AlertDialogContent>
       </AlertDialog>
     </Card>
+    </>
   );
 }
