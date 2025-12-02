@@ -330,17 +330,11 @@ export default function AddSupplier() {
       return;
     }
 
-    // Verifica se há categorias (da planilha ou selecionadas)
+    // Aplica categorias padrão se selecionadas
     const suppliersWithCategories = validSuppliers.map(s => ({
       ...s,
       categories: s.categories.length > 0 ? s.categories : defaultImportCategories
     }));
-
-    const hasAnyWithoutCategories = suppliersWithCategories.some(s => s.categories.length === 0);
-    if (hasAnyWithoutCategories && defaultImportCategories.length === 0) {
-      toast.error("Selecione pelo menos uma categoria padrão para os fornecedores");
-      return;
-    }
 
     setSubmitting(true);
     let successCount = 0;
@@ -363,15 +357,16 @@ export default function AddSupplier() {
 
         if (supplierError) throw supplierError;
 
-        // Create categories that don't exist
-        for (const catName of supplier.categories) {
-          if (!categories.includes(catName)) {
-            await supabase.from("categories").insert({ name: catName }).maybeSingle();
-          }
-        }
-
-        // Get category IDs
+        // Se tiver categorias, criar relações
         if (supplier.categories.length > 0) {
+          // Create categories that don't exist
+          for (const catName of supplier.categories) {
+            if (!categories.includes(catName)) {
+              await supabase.from("categories").insert({ name: catName }).maybeSingle();
+            }
+          }
+
+          // Get category IDs
           const { data: categoryData, error: categoryError } = await supabase
             .from("categories")
             .select("id, name")
@@ -715,14 +710,14 @@ export default function AddSupplier() {
                 </Button>
               </div>
 
-              {/* Seletor de categorias padrão */}
+              {/* Seletor de categorias padrão (opcional) */}
               {importedData.some(s => s.categories.length === 0) && (
-                <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                  <p className="text-sm font-medium mb-2 text-amber-200">
-                    ⚠️ Sua planilha não tem a coluna "Categorias"
+                <div className="p-3 bg-muted/50 border border-border rounded-lg">
+                  <p className="text-sm font-medium mb-2">
+                    📂 Categorias (opcional)
                   </p>
                   <p className="text-xs text-muted-foreground mb-2">
-                    Selecione as categorias padrão para todos os fornecedores:
+                    Selecione categorias para aplicar a todos, ou deixe em branco:
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {categories.map((category) => (
