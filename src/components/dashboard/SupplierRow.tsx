@@ -313,6 +313,7 @@ export function SupplierRow({
         open={showDetailsDrawer}
         onOpenChange={setShowDetailsDrawer}
         onRate={(rating) => onRate(supplier.id, rating)}
+        hideInfo={shouldHide}
       />
     </>
   );

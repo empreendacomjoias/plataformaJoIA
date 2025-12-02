@@ -17,6 +17,7 @@ interface SupplierDetailsDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onRate: (rating: number) => void;
+  hideInfo?: boolean;
 }
 
 const defaultCategoryColors: Record<string, string> = {
@@ -54,7 +55,8 @@ export function SupplierDetailsDrawer({
   supplier, 
   open, 
   onOpenChange,
-  onRate 
+  onRate,
+  hideInfo = false
 }: SupplierDetailsDrawerProps) {
   if (!supplier) return null;
 
@@ -144,11 +146,12 @@ export function SupplierDetailsDrawer({
           {/* Instagram */}
           <div className="space-y-2">
             <div className="text-sm font-medium text-muted-foreground">Instagram</div>
-            <div className="flex items-center gap-2">
+            <div className={cn("flex items-center gap-2", hideInfo && "blur-sm select-none pointer-events-none")}>
               <Button
                 variant="outline"
                 onClick={handleInstagramClick}
                 className="flex-1 justify-start"
+                disabled={hideInfo}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 @{instagramUsername}
@@ -157,6 +160,7 @@ export function SupplierDetailsDrawer({
                 variant="outline"
                 size="icon"
                 onClick={handleCopyInstagram}
+                disabled={hideInfo}
               >
                 <Copy className="w-4 h-4" />
               </Button>
