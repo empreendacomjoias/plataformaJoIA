@@ -86,13 +86,15 @@ export function FilterBar({
         </Select>
 
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="w-full sm:w-[160px] bg-background/50 text-sm">
+          <SelectTrigger className="w-full sm:w-[180px] bg-background/50 text-sm">
             <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
             <SelectItem value="default">Padrão</SelectItem>
             <SelectItem value="rating">Melhor Avaliação</SelectItem>
             <SelectItem value="name">Nome (A-Z)</SelectItem>
+            <SelectItem value="minOrder-asc">Pedido Mín. ↑</SelectItem>
+            <SelectItem value="minOrder-desc">Pedido Mín. ↓</SelectItem>
           </SelectContent>
         </Select>
       </div>
