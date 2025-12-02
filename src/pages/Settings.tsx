@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
+import { SupportSection } from "@/components/settings/SupportSection";
 
 export default function Settings() {
   return (
@@ -23,6 +24,8 @@ export default function Settings() {
         <ProfileSection />
         <Separator />
         <PreferencesSection />
+        <Separator />
+        <SupportSection />
       </Card>
     </div>
   );
