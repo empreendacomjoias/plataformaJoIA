@@ -7,9 +7,14 @@ import { toast } from "sonner";
 import { Mail, Loader2, Pencil, X, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function SupportSection() {
+interface SupportSectionProps {
+  previewAsUser?: boolean;
+}
+
+export function SupportSection({ previewAsUser = false }: SupportSectionProps) {
   const queryClient = useQueryClient();
-  const { isAdmin } = useAuth();
+  const { isAdmin: realIsAdmin } = useAuth();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const [email, setEmail] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editEmail, setEditEmail] = useState("");
