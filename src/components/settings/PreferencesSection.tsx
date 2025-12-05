@@ -1,16 +1,8 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { useAuth } from "@/contexts/AuthContext";
 
-interface PreferencesSectionProps {
-  previewAsUser?: boolean;
-}
-
-export function PreferencesSection({ previewAsUser = false }: PreferencesSectionProps) {
-  const { isAdmin: realIsAdmin } = useAuth();
-  const isAdmin = realIsAdmin && !previewAsUser;
-  
+export function PreferencesSection() {
   return (
     <div className="space-y-6">
       <div>

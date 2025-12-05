@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Mail, Loader2, Pencil, X, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 
-interface SupportSectionProps {
-  previewAsUser?: boolean;
-}
-
-export function SupportSection({ previewAsUser = false }: SupportSectionProps) {
+export function SupportSection() {
   const queryClient = useQueryClient();
   const { isAdmin: realIsAdmin } = useAuth();
+  const { previewAsUser } = usePreview();
   const isAdmin = realIsAdmin && !previewAsUser;
   const [email, setEmail] = useState("");
   const [isEditing, setIsEditing] = useState(false);

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Settings as SettingsIcon, Eye, EyeOff } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -7,10 +6,11 @@ import { ProfileSection } from "@/components/settings/ProfileSection";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { SupportSection } from "@/components/settings/SupportSection";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 
 export default function Settings() {
   const { isAdmin } = useAuth();
-  const [previewAsUser, setPreviewAsUser] = useState(false);
+  const { previewAsUser, setPreviewAsUser } = usePreview();
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
@@ -50,11 +50,11 @@ export default function Settings() {
       </div>
 
       <Card className="p-4 sm:p-5 md:p-6 border-border/50 shadow-lg space-y-4 md:space-y-6">
-        <ProfileSection previewAsUser={previewAsUser} />
+        <ProfileSection />
         <Separator />
-        <PreferencesSection previewAsUser={previewAsUser} />
+        <PreferencesSection />
         <Separator />
-        <SupportSection previewAsUser={previewAsUser} />
+        <SupportSection />
       </Card>
     </div>
   );
