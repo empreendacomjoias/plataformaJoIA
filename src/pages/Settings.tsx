@@ -50,9 +50,9 @@ export default function Settings() {
       </div>
 
       <Card className="p-4 sm:p-5 md:p-6 border-border/50 shadow-lg space-y-4 md:space-y-6">
-        <ProfileSection />
+        <ProfileSection previewAsUser={previewAsUser} />
         <Separator />
-        <PreferencesSection />
+        <PreferencesSection previewAsUser={previewAsUser} />
         <Separator />
         <SupportSection previewAsUser={previewAsUser} />
       </Card>
