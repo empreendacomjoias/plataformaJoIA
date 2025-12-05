@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
@@ -74,7 +75,9 @@ export function SupplierRow({
   showCheckbox = false,
   asFragment = false
 }: SupplierRowProps) {
-  const { isAdmin } = useAuth();
+  const { isAdmin: realIsAdmin } = useAuth();
+  const { previewAsUser } = usePreview();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const { deleteSupplier } = useSuppliers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);

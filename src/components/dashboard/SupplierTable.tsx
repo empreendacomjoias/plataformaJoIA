@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, GripVertical, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { toast } from "sonner";
 import {
@@ -119,7 +120,9 @@ function SortableRow({
 }
 
 export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false, hideAll = false }: SupplierTableProps) {
-  const { isAdmin } = useAuth();
+  const { isAdmin: realIsAdmin } = useAuth();
+  const { previewAsUser } = usePreview();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const { deleteSupplier } = useSuppliers();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);

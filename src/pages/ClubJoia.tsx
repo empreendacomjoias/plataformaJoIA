@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, Instagram, Search, Shield, Sparkles, Gem, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 import { useNavigate } from "react-router-dom";
 import { EditDescriptionDialog } from "@/components/club/EditDescriptionDialog";
 
@@ -15,7 +16,9 @@ export default function ClubJoia() {
   const { members, isLoading } = useClubMembers();
   const { getDescriptionByKey, updateDescription, isLoading: isLoadingDescription } = useModuleDescriptions();
   const { toast } = useToast();
-  const { isAdmin } = useAuth();
+  const { isAdmin: realIsAdmin } = useAuth();
+  const { previewAsUser } = usePreview();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [hideAll, setHideAll] = useState(false);

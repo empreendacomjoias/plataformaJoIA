@@ -3,6 +3,7 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRatings } from "@/hooks/useRatings";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 import { SupplierTable } from "@/components/dashboard/SupplierTable";
 import { Heart, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,9 @@ export default function Favorites() {
   const { suppliers, isLoading } = useSuppliers();
   const { toggleFavorite } = useFavorites();
   const { rateSupplier } = useRatings();
-  const { isAdmin } = useAuth();
+  const { isAdmin: realIsAdmin } = useAuth();
+  const { previewAsUser } = usePreview();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const [hideInfo, setHideInfo] = useState(false);
 
   const favoriteSuppliers = suppliers.filter((s) => s.isFavorite);
