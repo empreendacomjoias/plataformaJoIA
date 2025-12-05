@@ -47,6 +47,7 @@ interface SupplierTableProps {
   onReorder?: (suppliers: Supplier[]) => void;
   hideAdminControls?: boolean;
   hideAll?: boolean;
+  disableReorder?: boolean;
 }
 
 interface SortableRowProps {
@@ -119,7 +120,7 @@ function SortableRow({
   );
 }
 
-export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false, hideAll = false }: SupplierTableProps) {
+export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, hideAdminControls = false, hideAll = false, disableReorder = false }: SupplierTableProps) {
   const { isAdmin: realIsAdmin } = useAuth();
   const { previewAsUser } = usePreview();
   const isAdmin = realIsAdmin && !previewAsUser;
@@ -297,15 +298,17 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
                     Apagar ({selectedIds.size})
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleToggleDragMode}
-                  className="gap-2"
-                >
-                  <GripVertical className="w-4 h-4" />
-                  Reordenar
-                </Button>
+                {!disableReorder && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleToggleDragMode}
+                    className="gap-2"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                    Reordenar
+                  </Button>
+                )}
               </>
             )}
           </div>
