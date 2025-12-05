@@ -8,13 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { User } from "lucide-react";
 
-interface ProfileSectionProps {
-  previewAsUser?: boolean;
-}
-
-export function ProfileSection({ previewAsUser = false }: ProfileSectionProps) {
-  const { user, isAdmin: realIsAdmin } = useAuth();
-  const isAdmin = realIsAdmin && !previewAsUser;
+export function ProfileSection() {
+  const { user } = useAuth();
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 

@@ -2,6 +2,7 @@ import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Men
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +23,9 @@ const menuItems = [
 ];
 
 export function Sidebar() {
-  const { isAdmin, signOut, user } = useAuth();
+  const { isAdmin: realIsAdmin, signOut, user } = useAuth();
+  const { previewAsUser } = usePreview();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const { suppliers } = useSuppliers();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   

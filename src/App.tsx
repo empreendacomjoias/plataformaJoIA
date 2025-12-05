@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { PreviewProvider } from "./contexts/PreviewContext";
 import { Sidebar } from "./components/layout/Sidebar";
 
 import Dashboard from "./pages/Dashboard";
@@ -47,6 +48,7 @@ const App = () => (
 
       <HashRouter>
         <AuthProvider>
+          <PreviewProvider>
           <Routes>
 
             {/* 🔥 sem barra aqui também */}
@@ -79,6 +81,7 @@ const App = () => (
             />
 
           </Routes>
+          </PreviewProvider>
         </AuthProvider>
       </HashRouter>
     </TooltipProvider>
