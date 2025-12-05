@@ -10,13 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreview } from "@/contexts/PreviewContext";
 import { useNavigate } from "react-router-dom";
 
 export default function JoiaIndica() {
   const { recommendations, isLoading, trackClick } = useRecommendations();
   const { categories } = useRecommendationCategories();
   const { getDescriptionByKey, updateDescription, isLoading: isLoadingDescription } = useModuleDescriptions();
-  const { isAdmin } = useAuth();
+  const { isAdmin: realIsAdmin } = useAuth();
+  const { previewAsUser } = usePreview();
+  const isAdmin = realIsAdmin && !previewAsUser;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
