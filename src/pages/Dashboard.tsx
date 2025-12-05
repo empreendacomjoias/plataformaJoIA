@@ -19,6 +19,9 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState("default");
   const [hideAll, setHideAll] = useState(false);
 
+  // Check if any filters are active
+  const hasActiveFilters = searchQuery !== "" || regionFilter !== "all" || typeFilter !== "all" || sortBy !== "default";
+
   const filteredSuppliers = suppliers.filter((supplier) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -90,7 +93,7 @@ export default function Dashboard() {
           }
         }}
         onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
-        onReorder={async (reorderedSuppliers) => {
+        onReorder={hasActiveFilters ? undefined : async (reorderedSuppliers) => {
           const updates = reorderedSuppliers.map((s, index) => ({
             id: s.id,
             display_order: index + 1,
@@ -98,6 +101,7 @@ export default function Dashboard() {
           await reorderSuppliers(updates);
         }}
         hideAll={hideAll}
+        disableReorder={hasActiveFilters}
       />
     </div>
   );
