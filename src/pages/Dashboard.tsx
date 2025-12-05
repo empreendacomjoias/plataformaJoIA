@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, List } from "lucide-react";
 
 export default function Dashboard() {
-  const { suppliers, isLoading } = useSuppliers();
+  const { suppliers, isLoading, reorderSuppliers } = useSuppliers();
   const { toggleFavorite } = useFavorites();
   const { rateSupplier } = useRatings();
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +90,13 @@ export default function Dashboard() {
           }
         }}
         onRate={(id, rating) => rateSupplier({ supplierId: id, rating })}
+        onReorder={async (reorderedSuppliers) => {
+          const updates = reorderedSuppliers.map((s, index) => ({
+            id: s.id,
+            display_order: index + 1,
+          }));
+          await reorderSuppliers(updates);
+        }}
         hideAll={hideAll}
       />
     </div>
