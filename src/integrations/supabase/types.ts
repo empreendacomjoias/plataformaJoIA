@@ -329,6 +329,7 @@ export type Database = {
         Row: {
           created_at: string | null
           created_by: string | null
+          display_order: number | null
           id: string
           instagram: string
           min_order: number
@@ -342,6 +343,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           created_by?: string | null
+          display_order?: number | null
           id?: string
           instagram: string
           min_order: number
@@ -355,6 +357,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           created_by?: string | null
+          display_order?: number | null
           id?: string
           instagram?: string
           min_order?: number

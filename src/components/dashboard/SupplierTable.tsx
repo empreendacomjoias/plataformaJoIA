@@ -130,6 +130,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
   const [isDragMode, setIsDragMode] = useState(false);
   const [orderedSuppliers, setOrderedSuppliers] = useState<Supplier[]>(suppliers);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Keep orderedSuppliers in sync with suppliers when not in drag mode
   const displayedSuppliers = isDragMode ? orderedSuppliers : suppliers;
@@ -221,12 +222,22 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
     setIsDragMode(!isDragMode);
   };
 
-  const handleSaveOrder = () => {
+  const handleSaveOrder = async () => {
     if (onReorder) {
-      onReorder(orderedSuppliers);
+      setIsSaving(true);
+      try {
+        await onReorder(orderedSuppliers);
+        toast.success("Ordem dos fornecedores salva!");
+        setIsDragMode(false);
+      } catch (error) {
+        toast.error("Erro ao salvar ordem");
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      toast.success("Ordem dos fornecedores salva!");
+      setIsDragMode(false);
     }
-    toast.success("Ordem dos fornecedores salva!");
-    setIsDragMode(false);
   };
 
   return (
@@ -258,6 +269,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
                   size="sm"
                   onClick={() => setIsDragMode(false)}
                   className="gap-2"
+                  disabled={isSaving}
                 >
                   Cancelar
                 </Button>
@@ -266,9 +278,10 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
                   size="sm"
                   onClick={handleSaveOrder}
                   className="gap-2"
+                  disabled={isSaving}
                 >
                   <Save className="w-4 h-4" />
-                  Salvar Ordem
+                  {isSaving ? "Salvando..." : "Salvar Ordem"}
                 </Button>
               </>
             ) : (

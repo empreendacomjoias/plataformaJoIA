@@ -19,7 +19,7 @@ export function useSuppliers() {
             )
           )
         `)
-        .order("rating", { ascending: false });
+        .order("display_order", { ascending: true });
 
       if (suppliersError) throw suppliersError;
 
@@ -136,10 +136,31 @@ export function useSuppliers() {
     },
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: async (orderedSuppliers: { id: string; display_order: number }[]) => {
+      // Update each supplier's display_order
+      for (const supplier of orderedSuppliers) {
+        const { error } = await supabase
+          .from("suppliers")
+          .update({ display_order: supplier.display_order })
+          .eq("id", supplier.id);
+
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao reordenar fornecedores");
+    },
+  });
+
   return {
     suppliers,
     isLoading,
     deleteSupplier: deleteMutation.mutateAsync,
     updateSupplier: updateMutation.mutateAsync,
+    reorderSuppliers: reorderMutation.mutateAsync,
   };
 }
