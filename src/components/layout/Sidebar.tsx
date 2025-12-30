@@ -133,9 +133,6 @@ export function Sidebar() {
             Sair
           </Button>
         </div>
-        <div className="text-xs text-muted-foreground text-center">
-          {user?.email}
-        </div>
       </div>
     </aside>
     </>
