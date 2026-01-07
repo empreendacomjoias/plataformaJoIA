@@ -1,4 +1,4 @@
-import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Menu, X, Bell } from "lucide-react";
+import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Menu, X, Bell, Palette } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,7 @@ const menuItems = [
   { icon: Sparkles, label: "JoIA Indica", path: "/joia-indica" },
   { icon: Plus, label: "Adicionar Fornecedor", path: "/adicionar", adminOnly: true },
   { icon: Bell, label: "Notificações", path: "/notificacoes", adminOnly: true },
+  { icon: Palette, label: "Categorias", path: "/categorias", adminOnly: true },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 
