@@ -27,6 +27,8 @@ const defaultCategoryColors: Record<string, string> = {
   "Pandora": "bg-pink-500/20 text-pink-700 dark:text-pink-300 border-pink-500/50 dark:border-pink-500/30",
   "Tiffany": "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border-cyan-500/50 dark:border-cyan-500/30",
   "Vivara": "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/50 dark:border-amber-500/30",
+  "Importador": "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-500/50 dark:border-indigo-500/30",
+  "Inspirações": "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/50 dark:border-rose-500/30",
 };
 
 const categoryColorPalette = [
