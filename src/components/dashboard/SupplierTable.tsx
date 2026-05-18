@@ -124,7 +124,7 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
   const { isAdmin: realIsAdmin } = useAuth();
   const { previewAsUser } = usePreview();
   const isAdmin = realIsAdmin && !previewAsUser;
-  const { deleteSupplier } = useSuppliers();
+  const { deleteSupplier, suppliers: allSuppliers } = useSuppliers();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
