@@ -247,9 +247,12 @@ export function SupplierTable({ suppliers, onToggleFavorite, onRate, onReorder, 
       <Card className="overflow-hidden border-border/50 shadow-lg animate-fade-in">
       {isAdmin && !hideAdminControls && (
         <div className="p-4 border-b border-border/50 flex flex-wrap items-center justify-between gap-3 bg-secondary/30">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <span className="text-sm font-medium text-muted-foreground">
               Controles de Administrador
+            </span>
+            <span className="text-xs font-semibold px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+              {allSuppliers.length} {allSuppliers.length === 1 ? "fornecedor cadastrado" : "fornecedores cadastrados"}
             </span>
             {selectedIds.size > 0 && !isDragMode && (
               <span className="text-sm text-primary font-medium">
