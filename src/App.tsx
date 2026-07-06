@@ -20,6 +20,8 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import NotificationsAdmin from "./pages/NotificationsAdmin";
 import CategoriesAdmin from "./pages/CategoriesAdmin";
+import Bonuses from "./pages/Bonuses";
+import BonusesAdmin from "./pages/BonusesAdmin";
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, isAdmin, loading } = useAuth();
@@ -70,6 +72,8 @@ const App = () => (
                       <Route path="club-joia/admin" element={<ProtectedRoute adminOnly><ClubJoiaAdmin /></ProtectedRoute>} />
                       <Route path="joia-indica" element={<ProtectedRoute><JoiaIndica /></ProtectedRoute>} />
                       <Route path="joia-indica/admin" element={<ProtectedRoute adminOnly><JoiaIndicaAdmin /></ProtectedRoute>} />
+                      <Route path="bonus" element={<ProtectedRoute><Bonuses /></ProtectedRoute>} />
+                      <Route path="bonus/admin" element={<ProtectedRoute adminOnly><BonusesAdmin /></ProtectedRoute>} />
                       <Route path="adicionar" element={<ProtectedRoute adminOnly><AddSupplier /></ProtectedRoute>} />
                       <Route path="notificacoes" element={<ProtectedRoute adminOnly><NotificationsAdmin /></ProtectedRoute>} />
                       <Route path="categorias" element={<ProtectedRoute adminOnly><CategoriesAdmin /></ProtectedRoute>} />
