@@ -17,6 +17,7 @@ const menuItems = [
   { icon: Trophy, label: "Ranking", path: "/ranking" },
   { icon: Gem, label: "Club JoIA", path: "/club-joia" },
   { icon: Sparkles, label: "JoIA Indica", path: "/joia-indica" },
+  { icon: Gift, label: "Bônus", path: "/bonus" },
   { icon: Plus, label: "Adicionar Fornecedor", path: "/adicionar", adminOnly: true },
   { icon: Bell, label: "Notificações", path: "/notificacoes", adminOnly: true },
   { icon: Palette, label: "Categorias", path: "/categorias", adminOnly: true },
