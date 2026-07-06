@@ -20,6 +20,8 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import NotificationsAdmin from "./pages/NotificationsAdmin";
 import CategoriesAdmin from "./pages/CategoriesAdmin";
+import Bonuses from "./pages/Bonuses";
+import BonusesAdmin from "./pages/BonusesAdmin";
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, isAdmin, loading } = useAuth();
