@@ -1,4 +1,4 @@
-import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Menu, X, Bell, Palette } from "lucide-react";
+import { List, Heart, Trophy, Plus, Settings, LogOut, Shield, Sparkles, Gem, Menu, X, Bell, Palette, Gift } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
