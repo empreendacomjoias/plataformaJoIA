@@ -92,7 +92,7 @@ export default function Bonuses() {
               Bônus
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Materiais exclusivos em PDF para você baixar
+              Materiais exclusivos para você acessar
             </p>
           </div>
         </div>
