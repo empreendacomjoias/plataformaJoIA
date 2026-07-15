@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Gift, Download, FileText, Settings } from "lucide-react";
+import { Gift, Download, FileText, Settings, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
