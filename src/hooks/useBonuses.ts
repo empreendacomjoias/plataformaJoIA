@@ -6,7 +6,8 @@ export interface Bonus {
   id: string;
   title: string;
   description: string | null;
-  pdf_url: string;
+  pdf_url: string | null;
+  drive_url: string | null;
   cover_url: string | null;
   is_active: boolean;
   created_at: string;
