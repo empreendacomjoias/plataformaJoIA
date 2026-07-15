@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Gift, Plus, Pencil, Trash2, FileText, Upload, Loader2 } from "lucide-react";
+import { Gift, Plus, Pencil, Trash2, FileText, Loader2, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,10 +52,11 @@ interface FormState {
   description: string;
   is_active: boolean;
   pdf_url: string;
+  drive_url: string;
   cover_url: string;
 }
 
-const emptyForm: FormState = { title: "", description: "", is_active: true, pdf_url: "", cover_url: "" };
+const emptyForm: FormState = { title: "", description: "", is_active: true, pdf_url: "", drive_url: "", cover_url: "" };
 
 export default function BonusesAdmin() {
   const { data: bonuses, isLoading } = useBonuses();
@@ -81,7 +82,8 @@ export default function BonusesAdmin() {
       title: b.title,
       description: b.description ?? "",
       is_active: b.is_active,
-      pdf_url: b.pdf_url,
+      pdf_url: b.pdf_url ?? "",
+      drive_url: b.drive_url ?? "",
       cover_url: b.cover_url ?? "",
     });
     setDialogOpen(true);
@@ -134,14 +136,20 @@ export default function BonusesAdmin() {
       toast({ title: "Informe um título", variant: "destructive" });
       return;
     }
-    if (!form.pdf_url) {
-      toast({ title: "Envie o arquivo PDF", variant: "destructive" });
+    const driveUrl = form.drive_url.trim();
+    if (!form.pdf_url && !driveUrl) {
+      toast({ title: "Envie um PDF ou informe um link", variant: "destructive" });
+      return;
+    }
+    if (driveUrl && !/^https?:\/\//i.test(driveUrl)) {
+      toast({ title: "Link inválido", description: "O link deve começar com http:// ou https://", variant: "destructive" });
       return;
     }
     const payload = {
       title: form.title.trim(),
       description: form.description.trim() || null,
-      pdf_url: form.pdf_url,
+      pdf_url: form.pdf_url || null,
+      drive_url: driveUrl || null,
       cover_url: form.cover_url || null,
       is_active: form.is_active,
     };
@@ -169,7 +177,7 @@ export default function BonusesAdmin() {
               Gerenciar Bônus
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Cadastre e organize os materiais em PDF disponíveis para os usuários
+              Cadastre e organize os materiais disponíveis para os usuários
             </p>
           </div>
         </div>
@@ -201,6 +209,16 @@ export default function BonusesAdmin() {
                     <Badge variant={b.is_active ? "default" : "secondary"}>
                       {b.is_active ? "Ativo" : "Inativo"}
                     </Badge>
+                    {b.drive_url && (
+                      <Badge variant="outline" className="gap-1">
+                        <LinkIcon className="w-3 h-3" /> Link
+                      </Badge>
+                    )}
+                    {b.pdf_url && (
+                      <Badge variant="outline" className="gap-1">
+                        <FileText className="w-3 h-3" /> PDF
+                      </Badge>
+                    )}
                   </div>
                   {b.description && (
                     <p className="text-sm text-muted-foreground line-clamp-1">{b.description}</p>
@@ -229,7 +247,7 @@ export default function BonusesAdmin() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar Bônus" : "Novo Bônus"}</DialogTitle>
           </DialogHeader>
@@ -253,7 +271,7 @@ export default function BonusesAdmin() {
             </div>
 
             <div className="space-y-2">
-              <Label>Arquivo PDF</Label>
+              <Label>Arquivo PDF (opcional)</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="file"
@@ -266,8 +284,28 @@ export default function BonusesAdmin() {
               {form.pdf_url && (
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <FileText className="w-3 h-3" /> PDF pronto
+                  <button
+                    type="button"
+                    className="ml-2 underline"
+                    onClick={() => setForm({ ...form, pdf_url: "" })}
+                  >
+                    remover
+                  </button>
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Link do Drive (opcional)</Label>
+              <Input
+                type="url"
+                value={form.drive_url}
+                onChange={(e) => setForm({ ...form, drive_url: e.target.value })}
+                placeholder="https://drive.google.com/..."
+              />
+              <p className="text-xs text-muted-foreground">
+                Cole aqui um link do Google Drive, Dropbox ou qualquer outra URL. Informe ao menos um PDF ou um link.
+              </p>
             </div>
 
             <div className="space-y-2">

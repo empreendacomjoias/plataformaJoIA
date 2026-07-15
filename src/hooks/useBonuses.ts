@@ -6,7 +6,8 @@ export interface Bonus {
   id: string;
   title: string;
   description: string | null;
-  pdf_url: string;
+  pdf_url: string | null;
+  drive_url: string | null;
   cover_url: string | null;
   is_active: boolean;
   created_at: string;
@@ -58,7 +59,6 @@ export function useBonusMutations() {
 
   const deleteBonus = useMutation({
     mutationFn: async (bonus: Bonus) => {
-      // best-effort: delete files
       const paths = [bonus.pdf_url, bonus.cover_url].filter(Boolean) as string[];
       if (paths.length) await supabase.storage.from("bonuses").remove(paths);
       const { error } = await supabase.from("bonuses").delete().eq("id", bonus.id);

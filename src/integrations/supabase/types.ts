@@ -19,9 +19,10 @@ export type Database = {
           cover_url: string | null
           created_at: string
           description: string | null
+          drive_url: string | null
           id: string
           is_active: boolean
-          pdf_url: string
+          pdf_url: string | null
           title: string
           updated_at: string
         }
@@ -29,9 +30,10 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          drive_url?: string | null
           id?: string
           is_active?: boolean
-          pdf_url: string
+          pdf_url?: string | null
           title: string
           updated_at?: string
         }
@@ -39,9 +41,10 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          drive_url?: string | null
           id?: string
           is_active?: boolean
-          pdf_url?: string
+          pdf_url?: string | null
           title?: string
           updated_at?: string
         }
