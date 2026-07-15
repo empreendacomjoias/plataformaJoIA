@@ -25,10 +25,15 @@ function BonusCard({ bonus }: { bonus: Bonus }) {
   }, [bonus.cover_url]);
 
   const handleDownload = async () => {
+    if (!bonus.pdf_url) return;
     setDownloading(true);
     const url = await getSignedBonusUrl(bonus.pdf_url, 600);
     setDownloading(false);
     if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleOpenLink = () => {
+    if (bonus.drive_url) window.open(bonus.drive_url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -43,14 +48,28 @@ function BonusCard({ bonus }: { bonus: Bonus }) {
       <CardHeader className="pb-2">
         <h3 className="font-semibold text-lg leading-tight line-clamp-2">{bonus.title}</h3>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col gap-4">
+      <CardContent className="flex-1 flex flex-col gap-3">
         {bonus.description && (
           <p className="text-sm text-muted-foreground line-clamp-3 flex-1">{bonus.description}</p>
         )}
-        <Button onClick={handleDownload} disabled={downloading} className="w-full gap-2 mt-auto">
-          <Download className="w-4 h-4" />
-          {downloading ? "Preparando..." : "Baixar PDF"}
-        </Button>
+        <div className="flex flex-col gap-2 mt-auto">
+          {bonus.pdf_url && (
+            <Button onClick={handleDownload} disabled={downloading} className="w-full gap-2">
+              <Download className="w-4 h-4" />
+              {downloading ? "Preparando..." : "Baixar PDF"}
+            </Button>
+          )}
+          {bonus.drive_url && (
+            <Button
+              onClick={handleOpenLink}
+              variant={bonus.pdf_url ? "outline" : "default"}
+              className="w-full gap-2"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir link
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
